@@ -1,0 +1,204 @@
+/* ==========================================================================
+   DevBlog - Author Dashboard Styles
+   Modern SaaS Admin Panel
+   ========================================================================== */
+
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--color-bg);
+}
+
+/* Sidebar */
+.dashboard-sidebar {
+    width: 260px;
+    background-color: #FFFFFF;
+    border-right: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 40;
+    transition: transform 0.2s ease;
+}
+
+.sidebar-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.sidebar-menu {
+    padding: 1.5rem 1rem;
+    list-style: none;
+    margin: 0;
+    flex: 1;
+}
+
+.sidebar-item {
+    margin-bottom: 0.35rem;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.7rem 1rem;
+    color: var(--color-muted);
+    font-weight: 500;
+    font-size: 0.925rem;
+    border-radius: var(--radius-sm);
+    transition: all 0.15s ease;
+}
+
+.sidebar-link:hover {
+    background-color: var(--color-surface-hover);
+    color: var(--color-text);
+}
+
+.sidebar-link.active {
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+    font-weight: 600;
+}
+
+.sidebar-footer {
+    padding: 1rem;
+    border-top: 1px solid var(--color-border);
+    background-color: var(--color-surface-hover);
+}
+
+/* Main Dashboard Area */
+.dashboard-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.dashboard-topbar {
+    height: 70px;
+    background-color: #FFFFFF;
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 30;
+}
+
+.dashboard-content {
+    padding: 2rem;
+    flex: 1;
+}
+
+/* Metric Cards */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background-color: #FFFFFF;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.stat-title {
+    font-size: 0.85rem;
+    color: var(--color-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--color-text);
+    line-height: 1;
+}
+
+/* Data Tables */
+.table-card {
+    background-color: #FFFFFF;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.table-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.dashboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.9rem;
+}
+
+.dashboard-table th {
+    background-color: #F8FAFC;
+    color: var(--color-muted);
+    font-weight: 600;
+    font-size: 0.775rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.85rem 1.25rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.dashboard-table td {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text);
+    vertical-align: middle;
+}
+
+.dashboard-table tr:hover td {
+    background-color: #F8FAFC;
+}
+
+.action-btn-group {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+/* Mobile Sidebar Toggle */
+@media (max-width: 900px) {
+    .dashboard-sidebar {
+        position: fixed;
+        left: -260px;
+        top: 0;
+        bottom: 0;
+    }
+    .dashboard-sidebar.is-active {
+        transform: translateX(260px);
+    }
+    .dashboard-content {
+        padding: 1rem;
+    }
+}

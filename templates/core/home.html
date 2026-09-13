@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}DevBlog - Ideas, Insights & Stories for Developers{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container text-center hero-content">
+        <span class="hero-badge">
+            <span class="hero-badge-dot"></span>
+            An Editorial Publication
+        </span>
+        <h1 class="hero-title">
+            Ideas worth reading.
+        </h1>
+        <p class="hero-description">
+            A curated engineering journal featuring thoughtful perspectives, in-depth architecture breakdowns, Python and Django masterclasses, and modern web craftsmanship.
+        </p>
+        <div class="hero-actions">
+            <a href="{% url 'blog:post_list' %}" class="btn btn-primary btn-lg">Browse Articles</a>
+            <a href="#featured" class="btn hero-btn-outline btn-lg">Featured Essay</a>
+        </div>
+    </div>
+</section>
+
+<div class="container section">
+    <!-- Featured Article -->
+    {% if featured_post %}
+    <section id="featured">
+        <div class="featured-card">
+            {% if featured_post.featured_image %}
+            <div class="image-skeleton-container featured-card-image" style="padding: 0;">
+                <img src="{{ featured_post.featured_image.url }}" alt="{{ featured_post.title }}" class="featured-card-image progressive-img" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+            {% else %}
+            <div style="background: linear-gradient(135deg, #6B3F69 0%, #3B2039 100%); width: 100%; min-height: 340px; display: flex; align-items: center; justify-content: center; color: #FFFFFF; font-size: 3.5rem;">
+                ✦
+            </div>
+            {% endif %}
+
+            <div class="featured-card-content">
+                <span class="featured-badge" style="background-color: var(--color-primary); color: #FFFFFF;">Editor's Selection</span>
+                {% if featured_post.category %}
+                <span class="post-card-category" style="margin-bottom: 0.5rem;">
+                    <a href="{% url 'blog:category' featured_post.category.slug %}">{{ featured_post.category.name }}</a>
+                </span>
+                {% endif %}
+
+                <h2 class="featured-title">
+                    <a href="{{ featured_post.get_absolute_url }}">{{ featured_post.title }}</a>
+                </h2>
+
+                <p class="post-card-excerpt" style="font-size: 1.05rem; margin-bottom: 1.75rem;">
+                    {{ featured_post.excerpt|truncatewords:35 }}
+                </p>
+
+                <div class="post-card-meta" style="padding-top: 1rem;">
+                    <div class="post-author-box">
+                        <span class="avatar image-skeleton-container" style="border-radius: 50%;">
+                            {% if featured_post.author.profile.avatar %}
+                            <img src="{{ featured_post.author.profile.avatar.url }}" alt="{{ featured_post.author.full_name }}" class="avatar progressive-img">
+                            {% else %}
+                            {{ featured_post.author.email|first|upper }}
+                            {% endif %}
+                        </span>
+                        <span>
+                            <a href="{% url 'accounts:author_profile' featured_post.author.pk %}" style="color: inherit; font-weight: 600;">{{ featured_post.author.full_name }}</a>
+                            <span class="text-muted text-xs" style="display: block;">{{ featured_post.published_at|date:"M d, Y" }}</span>
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="card-like-badge" title="{{ featured_post.likes_count }} likes">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                            </svg>
+                            <span>{{ featured_post.likes_count }}</span>
+                        </span>
+                        <span>{{ featured_post.reading_time }} min read</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Latest Articles Grid -->
+    <section class="section-sm">
+        <div class="flex items-center justify-between" style="margin-bottom: 2rem;">
+            <div>
+                <h2>Recent Essays & Articles</h2>
+                <p class="text-muted text-sm">Dispatches on architecture, backend systems, and web craft.</p>
+            </div>
+            <a href="{% url 'blog:post_list' %}" class="btn btn-outline btn-sm">All Articles &rarr;</a>
+        </div>
+
+        {% if latest_posts %}
+        <div class="grid grid-cols-3 gap-6">
+            {% for post in latest_posts %}
+                {% include 'partials/post_card.html' with post=post %}
+            {% endfor %}
+        </div>
+        {% else %}
+            {% include 'partials/empty_state.html' with empty_title="No articles yet" empty_message="The editorial team is preparing essays. Check back shortly!" %}
+        {% endif %}
+    </section>
+
+    <!-- Popular Categories -->
+    {% if popular_categories %}
+    <section class="section-sm" style="margin-top: 2rem;">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <h2>Explore Topics</h2>
+            <p class="text-muted text-sm">Browse curated collections by technical domain.</p>
+        </div>
+
+        <div class="flex items-center justify-center gap-3" style="flex-wrap: wrap;">
+            {% for cat in popular_categories %}
+            <a href="{% url 'blog:category' cat.slug %}" class="card" style="padding: 0.75rem 1.4rem; border-radius: var(--radius-md); display: inline-flex; align-items: center; gap: 0.6rem; text-decoration: none;">
+                <span style="font-weight: 600; color: var(--color-text);">{{ cat.name }}</span>
+                <span class="badge badge-secondary">{{ cat.num_posts }}</span>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Newsletter CTA Section -->
+    <section class="section" style="margin-top: 3rem;">
+        <div class="card" style="background: linear-gradient(135deg, #261625 0%, #17151A 100%); color: #FFFFFF; padding: 3.5rem 2rem; border-radius: var(--radius-lg); text-align: center; border: 1px solid rgba(255,255,255,0.06); box-shadow: var(--shadow-lg);">
+            <div style="max-width: 600px; margin: 0 auto;">
+                <span class="badge" style="background: rgba(217, 140, 122, 0.2); color: var(--color-accent); margin-bottom: 1rem; font-weight: 600;">The Editorial Dispatch</span>
+                <h2 style="color: #FFFFFF; font-size: 2.25rem; margin-bottom: 1rem;">Delivered to your inbox</h2>
+                <p style="color: #FAF9F7; opacity: 0.8; font-size: 1.05rem; margin-bottom: 2rem;">
+                    Join thoughtful developers who receive our weekly publication on software architecture, Django systems, and engineering principles.
+                </p>
+                <form onsubmit="event.preventDefault(); alert('Thank you for subscribing to DevBlog!');" class="flex gap-2" style="max-width: 480px; margin: 0 auto; flex-direction: row;">
+                    <input type="email" placeholder="Enter your email address..." required style="flex: 1; padding: 0.85rem 1.25rem; border-radius: var(--radius-sm); border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); color: #FFFFFF; font-size: 0.95rem;">
+                    <button type="submit" class="btn btn-secondary" style="padding: 0.85rem 1.5rem;">Subscribe</button>
+                </form>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

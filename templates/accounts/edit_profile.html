@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Profile Details - DevBlog{% endblock %}
+{% block meta_description %}Manage your DevBlog author profile, avatar photo, bio, and social handles.{% endblock %}
+
+{% block content %}
+<div class="container section">
+    <div class="account-page-container" style="max-width: 660px;">
+        
+        <!-- Back to Profile Link -->
+        <div style="margin-bottom: 1.5rem;">
+            <a href="{% url 'accounts:author_profile' user.pk %}" class="account-back-link">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                <span>Back to Profile</span>
+            </a>
+        </div>
+
+        <div class="card account-card">
+            <!-- Header -->
+            <div class="settings-panel-header" style="text-align: center; border-bottom: 1px solid var(--color-border); padding-bottom: 1.5rem; margin-bottom: 2rem;">
+                <h1 class="settings-panel-title" style="font-size: 2rem; margin-bottom: 0.35rem;">Edit Profile Details</h1>
+                <p class="settings-panel-desc" style="font-size: 0.95rem;">Update your public author persona, avatar image, bio, and social media handles.</p>
+            </div>
+
+            <form id="profileDetailsForm" method="post" action="{% url 'accounts:edit_profile' %}" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+
+                <!-- Avatar Photo Section -->
+                <div class="settings-avatar-box" id="group_avatar">
+                    <div class="settings-avatar-circle" id="profileAvatarPreview">
+                        {% if profile.avatar %}
+                        <img src="{{ profile.avatar.url }}" alt="{{ user.full_name }}" id="avatarPreviewImg">
+                        {% else %}
+                        <span id="avatarPreviewFallback">{{ user.email|first|upper }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="settings-avatar-meta">
+                        <span class="settings-avatar-label">Profile Photo</span>
+                        <p class="settings-avatar-hint">PNG, JPG or WebP up to 3MB. Recommended square size 400x400px.</p>
+                        <label for="id_avatar" class="settings-avatar-btn">
+                            <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            <span>Choose New Picture</span>
+                        </label>
+                        <input type="file" name="avatar" id="id_avatar" accept="image/png,image/jpeg,image/webp" style="display: none;">
+                        <div class="form-error" id="error_avatar" style="display: none; margin-top: 0.5rem;"></div>
+                    </div>
+                </div>
+
+                <!-- Personal Information -->
+                <div class="settings-section-divider">
+                    <span class="settings-section-divider-text">Personal Information</span>
+                    <span class="settings-section-divider-line"></span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4" style="margin-bottom: 1.5rem;">
+                    <div class="form-group" id="group_first_name" style="margin-bottom: 0;">
+                        <label for="{{ user_form.first_name.id_for_label }}" class="form-label">First Name</label>
+                        {{ user_form.first_name }}
+                        <div class="form-error" id="error_first_name" style="display: none;"></div>
+                    </div>
+                    <div class="form-group" id="group_last_name" style="margin-bottom: 0;">
+                        <label for="{{ user_form.last_name.id_for_label }}" class="form-label">Last Name</label>
+                        {{ user_form.last_name }}
+                        <div class="form-error" id="error_last_name" style="display: none;"></div>
+                    </div>
+                </div>
+
+                <!-- Account Email (Protected) -->
+                <div class="settings-section-divider">
+                    <span class="settings-section-divider-text">Account Email</span>
+                    <span class="settings-section-divider-line"></span>
+                </div>
+
+                <div class="settings-email-lock">
+                    <div class="settings-email-lock-info">
+                        <div class="settings-email-lock-icon">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                        </div>
+                        <div class="settings-email-lock-details">
+                            <span class="settings-email-lock-label">Verified &bull; Read Only</span>
+                            <span class="settings-email-lock-address">{{ user.email }}</span>
+                        </div>
+                    </div>
+                    <a href="{% url 'accounts:email_change' %}" class="settings-email-lock-btn">
+                        <span>Change Email via OTP</span>
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </a>
+                </div>
+                <p class="settings-email-lock-hint">
+                    For security, email cannot be changed directly here. You can update it by verifying a 6-digit code sent to your new address.
+                </p>
+
+                <!-- Writer Biography & Website -->
+                <div class="settings-section-divider">
+                    <span class="settings-section-divider-text">Writer Biography &amp; Web</span>
+                    <span class="settings-section-divider-line"></span>
+                </div>
+
+                <div class="form-group" id="group_bio">
+                    <label for="{{ profile_form.bio.id_for_label }}" class="form-label">About You / Biography</label>
+                    {{ profile_form.bio }}
+                    <span class="text-xs text-muted" style="display: block; margin-top: 0.35rem;">Displayed publicly on your published essays and author card.</span>
+                    <div class="form-error" id="error_bio" style="display: none;"></div>
+                </div>
+
+                <div class="form-group" id="group_website" style="margin-bottom: 1.5rem;">
+                    <label for="{{ profile_form.website.id_for_label }}" class="form-label">Personal Website or Portfolio</label>
+                    {{ profile_form.website }}
+                    <div class="form-error" id="error_website" style="display: none;"></div>
+                </div>
+
+                <!-- Social Handles -->
+                <div class="settings-section-divider">
+                    <span class="settings-section-divider-text">Social Profiles</span>
+                    <span class="settings-section-divider-line"></span>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3" style="margin-bottom: 1rem;">
+                    <div class="form-group" id="group_github" style="margin-bottom: 0;">
+                        <label for="{{ profile_form.github.id_for_label }}" class="form-label">GitHub</label>
+                        {{ profile_form.github }}
+                        <div class="form-error" id="error_github" style="display: none;"></div>
+                    </div>
+                    <div class="form-group" id="group_linkedin" style="margin-bottom: 0;">
+                        <label for="{{ profile_form.linkedin.id_for_label }}" class="form-label">LinkedIn</label>
+                        {{ profile_form.linkedin }}
+                        <div class="form-error" id="error_linkedin" style="display: none;"></div>
+                    </div>
+                    <div class="form-group" id="group_twitter" style="margin-bottom: 0;">
+                        <label for="{{ profile_form.twitter.id_for_label }}" class="form-label">Twitter / X</label>
+                        {{ profile_form.twitter }}
+                        <div class="form-error" id="error_twitter" style="display: none;"></div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons Footer -->
+                <div class="settings-panel-footer" style="display: flex; align-items: center; justify-content: space-between; margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--color-border);">
+                    <a href="{% url 'accounts:author_profile' user.pk %}" class="btn btn-outline" style="border-radius: var(--radius-sm); padding: 0.65rem 1.5rem;">
+                        Cancel
+                    </a>
+                    <button type="submit" id="saveProfileBtn" class="btn btn-primary" style="border-radius: var(--radius-sm); padding: 0.65rem 2rem; font-weight: 600;">
+                        Save Profile Details
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}All Articles - DevBlog{% endblock %}
+{% block meta_description %}Explore in-depth technical articles, tutorials, and engineering stories on DevBlog.{% endblock %}
+
+{% block content %}
+<div class="container section">
+    <div style="max-width: 800px; margin: 0 auto 3rem; text-align: center;">
+        <h1 style="font-size: 2.75rem; margin-bottom: 0.75rem;">Technical Publications</h1>
+        <p class="text-muted" style="font-size: 1.1rem;">Deep dives into software architecture, Python, Django, performance, and modern engineering.</p>
+    </div>
+
+    <!-- Filter & Search Bar -->
+    <div class="card" style="padding: 1.25rem 1.5rem; margin-bottom: 2.5rem;">
+        <div class="flex items-center justify-between gap-4" style="flex-wrap: wrap;">
+            <!-- Category Filter Tabs -->
+            <div class="flex items-center gap-2" style="flex-wrap: wrap;">
+                <a href="{% url 'blog:post_list' %}" class="badge {% if not selected_category and not selected_tag %}badge-primary{% else %}badge-secondary{% endif %}" style="padding: 0.45rem 0.9rem; font-size: 0.85rem; text-decoration: none;">
+                    All Categories
+                </a>
+                {% for cat in categories %}
+                <a href="{% url 'blog:category' cat.slug %}" class="badge {% if selected_category == cat.slug %}badge-primary{% else %}badge-secondary{% endif %}" style="padding: 0.45rem 0.9rem; font-size: 0.85rem; text-decoration: none;">
+                    {{ cat.name }}
+                </a>
+                {% endfor %}
+            </div>
+
+            <!-- Search Form -->
+            <form action="{% url 'blog:search' %}" method="get" class="flex gap-2" style="margin: 0;">
+                <input type="search" name="q" placeholder="Search publications..." value="{{ request.GET.q|default:'' }}" class="form-input" style="padding: 0.45rem 0.85rem; width: 220px; font-size: 0.85rem;">
+                <button type="submit" class="btn btn-primary btn-sm">Search</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Posts Grid -->
+    <div id="postsGridContainer" data-ajax-container="true">
+        {% if posts %}
+        <div class="grid grid-cols-3 gap-6">
+            {% for post in posts %}
+                {% include 'partials/post_card.html' with post=post %}
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% include 'partials/pagination.html' %}
+        {% else %}
+            {% include 'partials/empty_state.html' with empty_title="No articles found" empty_message="No publications match your selected category or criteria." empty_action_url="/blog/" empty_action_text="View All Articles" %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block dashboard_title %}Manage Tags{% endblock %}
+
+{% block dashboard_content %}
+<div class="grid grid-cols-3 gap-6">
+    <!-- Tags List -->
+    <div class="table-card" style="grid-column: span 2;">
+        <div class="table-header">
+            <h3 style="margin: 0; font-size: 1.1rem;">Topic Tags</h3>
+        </div>
+        <div class="table-responsive">
+            <table class="dashboard-table">
+                <thead>
+                    <tr>
+                        <th>Tag</th>
+                        <th>Slug</th>
+                        <th>Articles</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tag in tags %}
+                    <tr>
+                        <td style="font-weight: 600;">#{{ tag.name }}</td>
+                        <td class="text-xs text-muted">/tag/{{ tag.slug }}/</td>
+                        <td><span class="badge badge-secondary">{{ tag.total_posts }}</span></td>
+                        <td>
+                            <a href="{% url 'blog:tag' tag.slug %}" target="_blank" class="btn btn-outline btn-sm">View &rarr;</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted" style="padding: 2rem;">No tags created yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Create Tag Form -->
+    <div class="card" style="padding: 1.75rem; height: fit-content;">
+        <h3 style="font-size: 1.15rem; margin-bottom: 1.25rem;">+ New Tag</h3>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label">Tag Name *</label>
+                {{ form.name }}
+            </div>
+            <button type="submit" class="btn btn-primary w-full" style="margin-top: 0.5rem;">Create Tag</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

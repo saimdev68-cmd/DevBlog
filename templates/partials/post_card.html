@@ -1,0 +1,46 @@
+{% load static %}
+<article class="post-card">
+    {% if post.featured_image %}
+    <a href="{{ post.get_absolute_url }}" class="image-skeleton-container" style="display: block; width: 100%; height: 200px;">
+        <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="post-card-thumb progressive-img" loading="lazy">
+    </a>
+    {% endif %}
+
+    <div class="post-card-body">
+        {% if post.category %}
+        <span class="post-card-category">
+            <a href="{% url 'blog:category' post.category.slug %}">{{ post.category.name }}</a>
+        </span>
+        {% endif %}
+
+        <h3 class="post-card-title">
+            <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+        </h3>
+
+        <p class="post-card-excerpt">
+            {{ post.excerpt|truncatewords:24 }}
+        </p>
+
+        <div class="post-card-meta">
+            <div class="post-author-box">
+                <a href="{% url 'accounts:author_profile' post.author.pk %}" class="avatar image-skeleton-container" title="{{ post.author.full_name }}" style="border-radius: 50%;">
+                    {% if post.author.profile.avatar %}
+                    <img src="{{ post.author.profile.avatar.url }}" alt="{{ post.author.full_name }}" class="avatar progressive-img">
+                    {% else %}
+                    {{ post.author.email|first|upper }}
+                    {% endif %}
+                </a>
+                <span><a href="{% url 'accounts:author_profile' post.author.pk %}" style="color: inherit; font-weight: 500;">{{ post.author.full_name }}</a></span>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="card-like-badge" title="{{ post.likes_count }} likes">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                    <span>{{ post.likes_count }}</span>
+                </span>
+                <span>{{ post.reading_time }} min read</span>
+            </div>
+        </div>
+    </div>
+</article>

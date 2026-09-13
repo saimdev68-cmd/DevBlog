@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}#{{ tag.name }} Articles - DevBlog{% endblock %}
+{% block meta_description %}Explore technical articles tagged with #{{ tag.name }} on DevBlog.{% endblock %}
+
+{% block content %}
+<div class="container section">
+    <div style="max-width: 800px; margin: 0 auto 3rem; text-align: center;">
+        <span class="badge badge-secondary" style="margin-bottom: 0.75rem;">Topic Tag</span>
+        <h1 style="font-size: 2.75rem; margin-bottom: 0.75rem;">#{{ tag.name }}</h1>
+        <span class="text-sm font-semibold text-muted">{{ total_articles }} publication{{ total_articles|pluralize }}</span>
+    </div>
+
+    <div id="postsGridContainer" data-ajax-container="true">
+        {% if posts %}
+        <div class="grid grid-cols-3 gap-6">
+            {% for post in posts %}
+                {% include 'partials/post_card.html' with post=post %}
+            {% endfor %}
+        </div>
+
+        {% include 'partials/pagination.html' %}
+        {% else %}
+            {% include 'partials/empty_state.html' with empty_title="No articles found" empty_message="No published articles associated with this tag yet." empty_action_url="/blog/" empty_action_text="Browse All Publications" %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

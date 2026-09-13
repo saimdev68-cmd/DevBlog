@@ -1,0 +1,61 @@
+<div class="container section profile-skeleton" aria-busy="true" aria-label="Loading profile...">
+    <!-- Hero Showcase Card Skeleton -->
+    <div class="card" style="padding: 3.5rem 2.5rem; margin-bottom: 3.5rem; text-align: center; max-width: 820px; margin-left: auto; margin-right: auto; position: relative; border-top: 4px solid var(--color-border);">
+        <!-- Avatar -->
+        <div style="margin-bottom: 1.5rem; display: flex; justify-content: center;">
+            <div class="skeleton skeleton-avatar skeleton-avatar-xl"></div>
+        </div>
+
+        <!-- Name & Role -->
+        <div class="flex items-center justify-center gap-2" style="margin-bottom: 0.85rem;">
+            <div class="skeleton skeleton-title" style="width: 220px; height: 2.25rem; margin-bottom: 0;"></div>
+            <div class="skeleton skeleton-badge" style="width: 95px; height: 1.35rem;"></div>
+        </div>
+
+        <!-- Bio -->
+        <div class="skeleton-paragraph" style="max-width: 580px; margin: 0 auto 1.5rem;">
+            <div class="skeleton skeleton-text skeleton-w-100"></div>
+            <div class="skeleton skeleton-text skeleton-w-85" style="margin: 0 auto;"></div>
+        </div>
+
+        <!-- Social Media Buttons -->
+        <div class="flex items-center justify-center gap-3" style="margin-bottom: 2rem;">
+            <div class="skeleton" style="width: 95px; height: 2rem; border-radius: var(--radius-full);"></div>
+            <div class="skeleton" style="width: 90px; height: 2rem; border-radius: var(--radius-full);"></div>
+            <div class="skeleton" style="width: 95px; height: 2rem; border-radius: var(--radius-full);"></div>
+        </div>
+
+        <!-- Action Links Bar -->
+        <div style="display: flex; justify-content: center; margin-bottom: 2rem;">
+            <div style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0.65rem; border-radius: var(--radius-md); border: 1px solid var(--color-border); background: var(--color-surface); flex-wrap: wrap; justify-content: center;">
+                <div class="skeleton skeleton-btn-sm" style="width: 140px;"></div>
+                <div class="skeleton skeleton-btn-sm" style="width: 130px;"></div>
+                <div class="skeleton skeleton-btn-sm" style="width: 110px;"></div>
+            </div>
+        </div>
+
+        <!-- Activity Stats -->
+        <div class="flex items-center justify-center gap-6" style="padding-top: 1.5rem; border-top: 1px solid var(--color-border);">
+            <div class="skeleton" style="width: 130px; height: 1rem;"></div>
+            <span>&bull;</span>
+            <div class="skeleton" style="width: 110px; height: 1rem;"></div>
+            <span>&bull;</span>
+            <div class="skeleton" style="width: 140px; height: 1rem;"></div>
+        </div>
+    </div>
+
+    <!-- Published Articles Grid Skeleton -->
+    <div class="section-sm" style="margin-bottom: 3.5rem;">
+        <div class="flex items-center justify-between" style="margin-bottom: 2rem;">
+            <div>
+                <div class="skeleton skeleton-title" style="width: 220px; height: 1.5rem; margin-bottom: 0.4rem;"></div>
+                <div class="skeleton skeleton-text" style="width: 320px; height: 0.85rem;"></div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-6">
+            {% include "partials/skeletons/post_card.html" %}
+            {% include "partials/skeletons/post_card.html" %}
+            {% include "partials/skeletons/post_card.html" %}
+        </div>
+    </div>
+</div>

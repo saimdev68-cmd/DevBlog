@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Change Email Address - DevBlog{% endblock %}
+{% block meta_description %}Update your account email address via secure 6-digit one-time passcode (OTP) verification.{% endblock %}
+
+{% block content %}
+<div class="container section">
+    <div class="account-page-container" style="max-width: 540px;">
+        
+        <!-- Back to Profile Link -->
+        <div style="margin-bottom: 1.5rem;">
+            <a href="{% url 'accounts:author_profile' user.pk %}" class="account-back-link">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                <span>Back to Profile</span>
+            </a>
+        </div>
+
+        <div class="card account-card">
+            <!-- Header -->
+            <div class="text-center" style="margin-bottom: 2rem;">
+                <div style="width: 52px; height: 52px; border-radius: 50%; background-color: var(--color-primary-light); color: var(--color-primary); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                    <svg width="26" height="26" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                </div>
+                <h1 style="font-family: var(--font-serif); font-size: 1.85rem; font-weight: 700; margin-bottom: 0.35rem;">Change Email Address</h1>
+                <p class="text-muted text-sm" style="margin-bottom: 0; line-height: 1.5;">Update your primary account email safely using one-time passcode (OTP) verification.</p>
+            </div>
+
+            <!-- Current Verified Email Status Banner -->
+            <div class="settings-email-lock" style="margin-bottom: 2rem;">
+                <div class="settings-email-lock-info">
+                    <div class="settings-email-lock-icon">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                    </div>
+                    <div class="settings-email-lock-details">
+                        <span class="settings-email-lock-label">Active Account Email</span>
+                        <span class="settings-email-lock-address" id="activeEmailText">{{ user.email }}</span>
+                    </div>
+                </div>
+                <span class="badge" style="background-color: var(--color-success-bg); color: var(--color-success); font-weight: 600; padding: 0.35rem 0.75rem; border-radius: var(--radius-full); font-size: 0.775rem; display: inline-flex; align-items: center; gap: 0.35rem;">
+                    <svg width="13" height="13" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                    Currently Verified
+                </span>
+            </div>
+
+            <!-- STEP 1: Request Email Update -->
+            <div id="emailChangeStep1" style="display: {% if pending_email %}none{% else %}block{% endif %};">
+                <div class="settings-section-divider" style="margin-top: 0;">
+                    <span class="settings-section-divider-text">Step 1: Request Email Update</span>
+                    <span class="settings-section-divider-line"></span>
+                </div>
+                <p class="text-muted text-sm" style="margin-bottom: 1.5rem;">Enter your current password to verify your identity, followed by your new email address.</p>
+
+                <form id="emailChangeRequestForm" method="post" action="{% url 'accounts:request_email_change' %}" novalidate>
+                    {% csrf_token %}
+
+                    <div class="form-group" id="group_current_password">
+                        <label for="{{ request_form.current_password.id_for_label }}" class="form-label">Current Account Password</label>
+                        <div class="password-input-wrapper">
+                            {{ request_form.current_password }}
+                            <button type="button" class="password-toggle-btn" aria-label="Toggle password visibility" tabindex="-1">
+                                <svg class="eye-icon" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                <svg class="eye-slash-icon hidden" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/></svg>
+                            </button>
+                        </div>
+                        <div class="form-error" id="error_current_password" style="display: none;"></div>
+                    </div>
+
+                    <div class="form-group" id="group_new_email" style="margin-top: 1.5rem;">
+                        <label for="{{ request_form.new_email.id_for_label }}" class="form-label">New Email Address</label>
+                        {{ request_form.new_email }}
+                        <span class="text-xs text-muted" style="display: block; margin-top: 0.25rem;">A 6-digit verification code will be dispatched to this address.</span>
+                        <div class="form-error" id="error_new_email" style="display: none;"></div>
+                    </div>
+
+                    <div class="settings-panel-footer" style="display: flex; align-items: center; justify-content: space-between; margin-top: 2.25rem; padding-top: 1.5rem; border-top: 1px solid var(--color-border);">
+                        <a href="{% url 'accounts:author_profile' user.pk %}" class="btn btn-outline" style="border-radius: var(--radius-sm); padding: 0.65rem 1.5rem;">Cancel</a>
+                        <button type="submit" id="requestEmailChangeBtn" class="btn btn-primary" style="border-radius: var(--radius-sm); padding: 0.65rem 2rem; font-weight: 600;">
+                            Send Verification Code &rarr;
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- STEP 2: Verify 6-Digit OTP -->
+            <div id="emailChangeStep2" style="display: {% if pending_email %}block{% else %}none{% endif %};">
+                <div class="flex items-center justify-between" style="margin-bottom: 0.75rem;">
+                    <div class="settings-section-divider-text" style="font-size: 0.85rem;">Step 2: Enter Verification Code</div>
+                    <button type="button" class="btn-text text-xs" id="backToStep1Btn">&larr; Change Address</button>
+                </div>
+
+                <p class="text-muted text-sm" style="margin-bottom: 1.75rem;">
+                    We sent a 6-digit confirmation code to <strong id="step2TargetEmail">{{ pending_email|default:"" }}</strong>.
+                    <br><span class="text-xs" style="color: var(--color-primary); font-weight: 600;">(In development mode, please check your console / terminal output)</span>
+                </p>
+
+                <form id="emailChangeVerifyForm" method="post" action="{% url 'accounts:verify_email_change' %}" novalidate>
+                    {% csrf_token %}
+
+                    <div class="form-group" id="group_otp_code">
+                        <label for="{{ verify_form.otp_code.id_for_label }}" class="form-label" style="text-align: center; display: block; margin-bottom: 0.75rem;">
+                            6-Digit Verification Code
+                        </label>
+                        {{ verify_form.otp_code }}
+                        <div class="form-error" id="error_otp_code" style="display: none; text-align: center; margin-top: 0.5rem;"></div>
+                    </div>
+
+                    <div style="margin-top: 2rem;">
+                        <button type="submit" id="verifyEmailChangeBtn" class="btn btn-primary" style="width: 100%; padding: 0.85rem; font-weight: 600; border-radius: var(--radius-sm);">
+                            Confirm &amp; Update Email
+                        </button>
+                    </div>
+                </form>
+
+                <div class="text-center" style="padding-top: 1.5rem; border-top: 1px solid var(--color-border); margin-top: 1.75rem;">
+                    <p class="text-xs text-muted" style="margin-bottom: 0.5rem;">Didn't receive the verification code?</p>
+                    <button type="button" id="resendEmailChangeOtpBtn" class="btn btn-outline btn-sm" style="border-radius: var(--radius-full); padding: 0.4rem 1rem;">
+                        Resend Code
+                    </button>
+                    <span id="emailOtpCooldown" class="text-xs text-muted" style="display: none; margin-left: 0.5rem;">(60s)</span>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+{% endblock %}

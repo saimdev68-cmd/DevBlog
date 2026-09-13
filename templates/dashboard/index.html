@@ -1,0 +1,123 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block dashboard_title %}Editorial Overview{% endblock %}
+
+{% block dashboard_content %}
+<!-- Stats Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-title">Total Articles</div>
+        <div class="stat-value">{{ stats.total_posts }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-title">Published</div>
+        <div class="stat-value" style="color: var(--color-success);">{{ stats.published_posts }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-title">Drafts</div>
+        <div class="stat-value" style="color: var(--color-warning);">{{ stats.draft_posts }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-title">Total Views</div>
+        <div class="stat-value" style="color: var(--color-primary);">{{ stats.total_views }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-title">Comments</div>
+        <div class="stat-value">{{ stats.total_comments }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-title">Pending Moderation</div>
+        <div class="stat-value" style="color: {% if stats.pending_comments > 0 %}var(--color-error){% else %}var(--color-muted){% endif %};">
+            {{ stats.pending_comments }}
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-2 gap-6" style="margin-top: 1rem;">
+    <!-- Recent Articles -->
+    <div class="table-card">
+        <div class="table-header">
+            <h3 style="font-size: 1.1rem; margin: 0;">Recent Articles</h3>
+            <a href="{% url 'dashboard:post_list' %}" class="text-sm font-semibold">View all &rarr;</a>
+        </div>
+        <div class="table-responsive">
+            <table class="dashboard-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Status</th>
+                        <th>Views</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for post in recent_posts %}
+                    <tr>
+                        <td style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500;">
+                            {{ post.title }}
+                        </td>
+                        <td>
+                            {% if post.status == 'PUBLISHED' %}
+                            <span class="badge badge-success">Published</span>
+                            {% elif post.status == 'DRAFT' %}
+                            <span class="badge badge-warning">Draft</span>
+                            {% else %}
+                            <span class="badge badge-secondary">{{ post.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ post.views }}</td>
+                        <td>
+                            <a href="{% url 'dashboard:post_edit' post.pk %}" class="btn btn-outline btn-sm">Edit</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted" style="padding: 2rem;">No articles written yet. Click "+ New Article" to create one!</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Recent Comments -->
+    <div class="table-card">
+        <div class="table-header">
+            <h3 style="font-size: 1.1rem; margin: 0;">Recent Comments</h3>
+            <a href="{% url 'dashboard:comment_list' %}" class="text-sm font-semibold">View all &rarr;</a>
+        </div>
+        <div class="table-responsive">
+            <table class="dashboard-table">
+                <thead>
+                    <tr>
+                        <th>Author</th>
+                        <th>Comment</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in recent_comments %}
+                    <tr>
+                        <td style="font-weight: 500; font-size: 0.85rem;">{{ c.user.full_name }}</td>
+                        <td style="max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--color-muted); font-size: 0.85rem;">
+                            {{ c.content }}
+                        </td>
+                        <td>
+                            {% if c.is_approved %}
+                            <span class="badge badge-success">Approved</span>
+                            {% else %}
+                            <span class="badge badge-error">Pending</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="text-center text-muted" style="padding: 2rem;">No comments recorded yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

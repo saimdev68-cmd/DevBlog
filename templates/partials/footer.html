@@ -1,0 +1,50 @@
+{% load static %}
+<footer class="site-footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <div class="flex items-center gap-2" style="margin-bottom: 0.75rem;">
+                    <img src="{% static 'images/logo.svg' %}" alt="DevBlog Logo" class="nav-brand-logo" width="28" height="28">
+                    <h3 style="margin-bottom: 0;">Dev<span class="brand-accent">Blog</span></h3>
+                </div>
+                <p>The modern engineering publication for developers, designers, and software craftspeople. Thoughtful perspectives on building production systems.</p>
+            </div>
+
+            <div class="footer-col">
+                <h4>Navigation</h4>
+                <ul class="footer-links">
+                    <li><a href="{% url 'core:home' %}">Home</a></li>
+                    <li><a href="{% url 'blog:post_list' %}">All Articles</a></li>
+                    <li><a href="{% url 'core:about' %}">About Platform</a></li>
+                    <li><a href="{% url 'core:contact' %}">Contact Us</a></li>
+                    <li><a href="{% url 'feed' %}">RSS Feed</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Popular Topics</h4>
+                <ul class="footer-links">
+                    <li><a href="{% url 'blog:search' %}?q=django">Django</a></li>
+                    <li><a href="{% url 'blog:search' %}?q=python">Python</a></li>
+                    <li><a href="{% url 'blog:search' %}?q=architecture">Architecture</a></li>
+                    <li><a href="{% url 'blog:search' %}?q=database">Databases</a></li>
+                    <li><a href="{% url 'blog:search' %}?q=performance">Performance</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Connect</h4>
+                <ul class="footer-links">
+                    <li><a href="https://github.com/saimdev68-cmd/DevBlog" target="_blank" rel="noopener">GitHub</a></li>
+                    <li><a href="https://twitter.com" target="_blank" rel="noopener">X / Twitter</a></li>
+                    <li><a href="https://linkedin.com" target="_blank" rel="noopener">LinkedIn</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; {% now "Y" %} DevBlog. Built with Python & Django. All rights reserved.</p>
+            <p><a href="#top" style="color: inherit;">Back to Top &uarr;</a></p>
+        </div>
+    </div>
+</footer>

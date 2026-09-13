@@ -1,0 +1,8 @@
+<div class="empty-state">
+    <div class="empty-state-icon">📝</div>
+    <h3 class="empty-state-title">{{ empty_title|default:"No articles found" }}</h3>
+    <p class="empty-state-desc">{{ empty_message|default:"Try adjusting your search criteria or browse our latest publications." }}</p>
+    {% if empty_action_url %}
+    <a href="{{ empty_action_url }}" class="btn btn-outline">{{ empty_action_text|default:"Browse All Articles" }}</a>
+    {% endif %}
+</div>

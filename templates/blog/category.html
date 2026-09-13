@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}{{ category.name }} Articles - DevBlog{% endblock %}
+{% block meta_description %}{{ category.description|default:"Browse technical articles on "|add:category.name }}{% endblock %}
+
+{% block content %}
+<div class="container section">
+    <div style="max-width: 800px; margin: 0 auto 3rem; text-align: center;">
+        <span class="badge badge-primary" style="margin-bottom: 0.75rem;">Category</span>
+        <h1 style="font-size: 2.75rem; margin-bottom: 0.75rem;">{{ category.name }}</h1>
+        {% if category.description %}
+        <p class="text-muted" style="font-size: 1.1rem; margin-bottom: 1rem;">{{ category.description }}</p>
+        {% endif %}
+        <span class="text-sm font-semibold text-muted">{{ total_articles }} publication{{ total_articles|pluralize }}</span>
+    </div>
+
+    <div id="postsGridContainer" data-ajax-container="true">
+        {% if posts %}
+        <div class="grid grid-cols-3 gap-6">
+            {% for post in posts %}
+                {% include 'partials/post_card.html' with post=post %}
+            {% endfor %}
+        </div>
+
+        {% include 'partials/pagination.html' %}
+        {% else %}
+            {% include 'partials/empty_state.html' with empty_title="No articles in this category" empty_message="No published articles found under this category yet." empty_action_url="/blog/" empty_action_text="Browse All Publications" %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

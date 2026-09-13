@@ -1,0 +1,437 @@
+/* ==========================================================================
+   DevBlog - Modern Skeleton Loading System
+   Editorial Design System Placeholder & Shimmer Styles
+   ========================================================================== */
+
+:root {
+    --skeleton-base: #EDE9E7;
+    --skeleton-highlight: #F7F4F2;
+    --skeleton-dark-base: #1E1B24;
+    --skeleton-dark-highlight: #2C2633;
+}
+
+/* Base Shimmer Keyframes */
+@keyframes skeleton-shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+@keyframes skeleton-pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.65;
+    }
+}
+
+/* Base Skeleton Class */
+.skeleton {
+    background: linear-gradient(
+        90deg,
+        var(--skeleton-base) 25%,
+        var(--skeleton-highlight) 50%,
+        var(--skeleton-base) 75%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.5s ease-in-out infinite;
+    border-radius: var(--radius-sm);
+    display: block;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Typography Skeletons */
+.skeleton-title-lg {
+    height: 2.5rem;
+    margin-bottom: 1rem;
+    border-radius: 6px;
+    max-width: 85%;
+}
+
+.skeleton-title {
+    height: 1.6rem;
+    margin-bottom: 0.75rem;
+    border-radius: 5px;
+}
+
+.skeleton-subtitle {
+    height: 1.15rem;
+    margin-bottom: 0.75rem;
+    border-radius: 4px;
+}
+
+.skeleton-text {
+    height: 0.9rem;
+    margin-bottom: 0.55rem;
+    border-radius: 4px;
+}
+
+.skeleton-text:last-child {
+    margin-bottom: 0;
+}
+
+.skeleton-meta {
+    height: 0.75rem;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+/* Line Width Helpers for Natural Paragraph Variations */
+.skeleton-w-100 { width: 100%; }
+.skeleton-w-95  { width: 95%; }
+.skeleton-w-90  { width: 90%; }
+.skeleton-w-85  { width: 85%; }
+.skeleton-w-80  { width: 80%; }
+.skeleton-w-75  { width: 75%; }
+.skeleton-w-70  { width: 70%; }
+.skeleton-w-65  { width: 65%; }
+.skeleton-w-60  { width: 60%; }
+.skeleton-w-50  { width: 50%; }
+.skeleton-w-40  { width: 40%; }
+.skeleton-w-35  { width: 35%; }
+.skeleton-w-25  { width: 25%; }
+.skeleton-w-20  { width: 20%; }
+
+/* Paragraph Block */
+.skeleton-paragraph {
+    margin-bottom: 1.5rem;
+}
+
+.skeleton-paragraph .skeleton-text {
+    margin-bottom: 0.6rem;
+}
+
+/* Badge & Button Skeletons */
+.skeleton-badge {
+    height: 1.35rem;
+    width: 80px;
+    border-radius: var(--radius-full);
+    display: inline-block;
+}
+
+.skeleton-btn {
+    height: 2.4rem;
+    width: 120px;
+    border-radius: var(--radius-sm);
+    display: inline-block;
+}
+
+.skeleton-btn-sm {
+    height: 1.9rem;
+    width: 85px;
+    border-radius: var(--radius-sm);
+    display: inline-block;
+}
+
+/* Avatar Skeletons */
+.skeleton-avatar {
+    border-radius: 50% !important;
+    flex-shrink: 0;
+    display: inline-block;
+}
+
+.skeleton-avatar-sm {
+    width: 32px;
+    height: 32px;
+}
+
+.skeleton-avatar-md {
+    width: 40px;
+    height: 40px;
+}
+
+.skeleton-avatar-lg {
+    width: 88px;
+    height: 88px;
+}
+
+.skeleton-avatar-xl {
+    width: 104px;
+    height: 104px;
+}
+
+/* Card Skeleton Component (Matches .post-card perfectly) */
+.skeleton-card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    box-shadow: var(--shadow-sm);
+}
+
+.skeleton-card-thumb {
+    width: 100%;
+    height: 200px;
+    border-radius: 0;
+}
+
+.skeleton-card-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.skeleton-card-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgba(232, 227, 232, 0.6);
+}
+
+/* Featured Article Skeleton */
+.skeleton-featured-card {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-bottom: 3.5rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.skeleton-featured-img {
+    width: 100%;
+    min-height: 340px;
+    height: 100%;
+    border-radius: 0;
+}
+
+.skeleton-featured-content {
+    padding: 3rem 2.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Code Block Skeleton (Dark surface for developer publication aesthetic) */
+.skeleton-code-block {
+    background-color: #17151A !important;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    margin: 1.75rem 0;
+    box-shadow: var(--shadow-sm);
+}
+
+.skeleton-code-line {
+    height: 0.85rem;
+    margin-bottom: 0.65rem;
+    border-radius: 3px;
+    background: linear-gradient(
+        90deg,
+        var(--skeleton-dark-base) 25%,
+        var(--skeleton-dark-highlight) 50%,
+        var(--skeleton-dark-base) 75%
+    ) !important;
+    background-size: 200% 100% !important;
+    animation: skeleton-shimmer 1.5s ease-in-out infinite !important;
+}
+
+.skeleton-code-line:last-child {
+    margin-bottom: 0;
+}
+
+/* Hero Section Skeleton */
+.skeleton-hero {
+    padding: 5rem 0 3.5rem;
+    text-align: center;
+    max-width: 780px;
+    margin: 0 auto;
+}
+
+/* Progressive Image Container & Fade-in */
+.image-skeleton-container {
+    position: relative;
+    overflow: hidden;
+    background-color: var(--skeleton-base);
+}
+
+.image-skeleton-container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        90deg,
+        var(--skeleton-base) 25%,
+        var(--skeleton-highlight) 50%,
+        var(--skeleton-base) 75%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.5s ease-in-out infinite;
+    z-index: 1;
+    transition: opacity 0.3s ease-out;
+}
+
+.image-skeleton-container.image-loaded::before {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.progressive-img {
+    opacity: 0;
+    transition: opacity 0.35s ease-in-out;
+    position: relative;
+    z-index: 2;
+}
+
+.progressive-img.is-loaded {
+    opacity: 1;
+}
+
+.image-skeleton-container img.article-featured-img {
+    margin: 0 !important;
+}
+
+.image-fallback-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #F5F2F0;
+    color: var(--color-muted);
+    font-size: 0.85rem;
+    font-weight: 500;
+    gap: 0.4rem;
+    width: 100%;
+    height: 100%;
+}
+
+/* Interactive Button Loading States */
+.btn.is-loading,
+.profile-action-btn.is-loading,
+.like-btn.is-loading {
+    position: relative;
+    pointer-events: none;
+    cursor: wait;
+    opacity: 0.85;
+}
+
+.btn.is-loading .btn-text-content {
+    visibility: hidden;
+}
+
+.btn.is-loading::after {
+    content: "";
+    position: absolute;
+    width: 1rem;
+    height: 1rem;
+    top: calc(50% - 0.5rem);
+    left: calc(50% - 0.5rem);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #FFFFFF;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+.btn-outline.is-loading::after {
+    border-color: rgba(23, 21, 26, 0.2);
+    border-top-color: var(--color-primary);
+}
+
+/* Like Button Subtle In-Flight Loading */
+.like-btn.is-loading svg {
+    animation: skeleton-pulse 0.8s ease-in-out infinite;
+    opacity: 0.6;
+}
+
+/* Reusable Error & Retry State */
+.skeleton-error-state {
+    padding: 3rem 2rem;
+    text-align: center;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    margin: 1.5rem 0;
+}
+
+.skeleton-error-state p {
+    color: var(--color-muted);
+    margin-bottom: 1.25rem;
+    font-size: 0.95rem;
+}
+
+/* Dashboard Skeleton Styles */
+.skeleton-stat-card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.skeleton-table-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+/* Comments Section Skeleton */
+.skeleton-comment-card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Responsive Styles for Skeletons */
+@media (max-width: 1024px) {
+    .skeleton-featured-card {
+        grid-template-columns: 1fr;
+    }
+    .skeleton-featured-img {
+        min-height: 260px;
+    }
+    .skeleton-featured-content {
+        padding: 2rem 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .skeleton-hero {
+        padding: 3rem 0 2rem;
+    }
+    .skeleton-title-lg {
+        height: 2rem;
+    }
+    .skeleton-card-thumb {
+        height: 180px;
+    }
+}
+
+/* Accessibility: Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    .skeleton,
+    .skeleton-code-line,
+    .image-skeleton-container::before {
+        animation: none !important;
+        background: var(--skeleton-base) !important;
+    }
+    .skeleton-code-line {
+        background: var(--skeleton-dark-base) !important;
+    }
+    .progressive-img {
+        transition: none !important;
+    }
+    .like-btn.is-loading svg {
+        animation: none !important;
+    }
+}

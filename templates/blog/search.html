@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Search: {{ query }} - DevBlog{% endblock %}
+
+{% block content %}
+<div class="container section">
+    <div style="max-width: 700px; margin: 0 auto 3rem; text-align: center;">
+        <span class="badge badge-primary" style="margin-bottom: 0.75rem;">Search Results</span>
+        <h1 style="font-size: 2.5rem; margin-bottom: 0.75rem;">
+            {% if query %}
+            Results for &ldquo;{{ query }}&rdquo;
+            {% else %}
+            Search Publications
+            {% endif %}
+        </h1>
+        <p class="text-muted">
+            {% if query %}
+            Found {{ total_results }} article{{ total_results|pluralize }} matching your search.
+            {% else %}
+            Enter keywords to find architecture guides, tutorials, and engineering articles.
+            {% endif %}
+        </p>
+
+        <form action="{% url 'blog:search' %}" method="get" class="flex gap-2" style="margin-top: 1.5rem;">
+            <input type="search" name="q" value="{{ query }}" placeholder="Search by title, content, topic, or tag..." class="form-input" style="flex: 1;" required autofocus>
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+    </div>
+
+    <div id="postsGridContainer" data-ajax-container="true">
+        {% if posts %}
+        <div class="grid grid-cols-3 gap-6">
+            {% for post in posts %}
+                {% include 'partials/post_card.html' with post=post %}
+            {% endfor %}
+        </div>
+
+        {% include 'partials/pagination.html' %}
+        {% elif query %}
+            {% include 'partials/empty_state.html' with empty_title="No matching articles" empty_message="We couldn't find any publications matching your search query. Try broader keywords or browse all categories." empty_action_url="/blog/" empty_action_text="Browse All Publications" %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

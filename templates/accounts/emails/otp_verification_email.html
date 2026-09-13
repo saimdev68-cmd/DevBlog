@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify your email - DevBlog</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #FAF9F7; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #17151A; -webkit-font-smoothing: antialiased;">
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #FAF9F7; padding: 30px 15px;">
+        <tr>
+            <td align="center">
+                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 520px; background-color: #FFFFFF; border-radius: 12px; border: 1px solid #E8E3E8; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.04);">
+                    <!-- Brand Header -->
+                    <tr>
+                        <td style="padding: 32px 32px 24px 32px; text-align: center; border-bottom: 1px solid #F0ECEF; background: #FFFFFF;">
+                            <div style="display: inline-block;">
+                                <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+                                    <tr>
+                                        <td style="vertical-align: middle; padding-right: 10px;">
+                                            <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #734270 0%, #461E44 100%); border-radius: 8px; text-align: center; line-height: 36px; color: #FFFFFF; font-weight: bold; font-size: 16px;">
+                                                &lt;/&gt;
+                                            </div>
+                                        </td>
+                                        <td style="vertical-align: middle;">
+                                            <span style="font-size: 22px; font-weight: 700; color: #17151A; letter-spacing: -0.02em;">Dev<span style="color: #D98C7A;">Blog</span></span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                    <!-- Main Body -->
+                    <tr>
+                        <td style="padding: 36px 36px 28px 36px;">
+                            <h1 style="margin: 0 0 16px 0; font-size: 22px; font-weight: 700; color: #17151A; letter-spacing: -0.02em;">
+                                Verify Your Email Address
+                            </h1>
+                            <p style="margin: 0 0 24px 0; font-size: 15px; line-height: 1.6; color: #4A454E;">
+                                Hello {% if user.first_name %}{{ user.first_name }}{% else %}Reader{% endif %},
+                            </p>
+                            <p style="margin: 0 0 28px 0; font-size: 15px; line-height: 1.6; color: #4A454E;">
+                                Thank you for creating an account on <strong>DevBlog</strong>. To activate your account and start reading, liking, and participating in editorial discussions, please enter the following verification code:
+                            </p>
+
+                            <!-- OTP Box -->
+                            <div style="background-color: #F8F5F7; border: 1px solid #E8E3E8; border-radius: 10px; padding: 24px; text-align: center; margin: 0 0 28px 0;">
+                                <div style="font-family: 'SF Mono', Consolas, Monaco, 'Liberation Mono', Menlo, Courier, monospace; font-size: 34px; font-weight: 800; letter-spacing: 0.35em; color: #6B3F69; padding-left: 0.35em;">
+                                    {{ otp_code }}
+                                </div>
+                                <p style="margin: 10px 0 0 0; font-size: 13px; color: #6F6A73;">
+                                    Valid for <strong>{{ validity_minutes }} minutes</strong>
+                                </p>
+                            </div>
+
+                            <p style="margin: 0 0 16px 0; font-size: 14px; line-height: 1.55; color: #6F6A73;">
+                                If you did not create a DevBlog account with this email address, you can safely ignore this message. No action will be taken on your behalf.
+                            </p>
+                        </td>
+                    </tr>
+                    <!-- Footer -->
+                    <tr>
+                        <td style="padding: 20px 36px; background-color: #FAF9F7; border-top: 1px solid #E8E3E8; text-align: center;">
+                            <p style="margin: 0; font-size: 12px; line-height: 1.5; color: #8C8790;">
+                                &copy; DevBlog &bull; Modern Editorial Publication for Engineers &amp; Thinkers
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

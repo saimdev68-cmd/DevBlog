@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}About DevBlog - Modern Engineering Publication{% endblock %}
+{% block meta_description %}Learn about DevBlog, our mission to elevate technical journalism, and our developer-centric editorial principles.{% endblock %}
+
+{% block content %}
+<div class="container section">
+    <div class="container-narrow">
+        <span class="badge badge-primary" style="margin-bottom: 1rem;">Our Mission</span>
+        <h1 style="font-size: 2.75rem; margin-bottom: 1.5rem;">Empowering developers with production-grade insights.</h1>
+        
+        <div class="article-body">
+            <p>
+                <strong>DevBlog</strong> was founded on the belief that technical content should be thoughtful, comprehensive, and built for practitioners. In an era of hurried snippets and surface-level tutorials, we strive to provide in-depth analyses of software architecture, backend engineering, and clean design patterns.
+            </p>
+
+            <h2>Built with Modern Django</h2>
+            <p>
+                This platform is powered by a high-performance, server-rendered Django architecture adhering to production standards:
+            </p>
+            <ul>
+                <li><strong>Django ORM & Query Optimization:</strong> Zero N+1 queries with eager loading and smart indexing.</li>
+                <li><strong>Vanilla Web Standards:</strong> Clean HTML5, CSS custom properties, and vanilla JavaScript without client-side bundle bloat.</li>
+                <li><strong>Robust Security:</strong> Email authentication, CSRF validation, Content Security, and strict authorization gates.</li>
+                <li><strong>Author Freedom:</strong> Comprehensive dashboard for managing articles, reviewing community discussions, and curating categories.</li>
+            </ul>
+
+            <h2>Editorial Standards</h2>
+            <p>
+                Every article published on DevBlog is vetted for accuracy, performance implications, and practical applicability. Whether you're exploring Django ORM internals, database indexing strategies, or scalable cloud deployments, our goal is to deliver insights you can immediately apply in your codebase.
+            </p>
+
+            <div class="card" style="padding: 2rem; margin-top: 3rem; background-color: var(--color-surface); border-color: var(--color-primary-light);">
+                <h3 style="margin-bottom: 0.5rem;">Interested in writing for DevBlog?</h3>
+                <p class="text-muted" style="margin-bottom: 1.5rem;">We welcome engineers and authors who want to share practical knowledge with our global audience.</p>
+                <div class="flex gap-3">
+                    <a href="{% url 'accounts:register' %}" class="btn btn-primary">Join as an Author</a>
+                    <a href="{% url 'core:contact' %}" class="btn btn-outline">Contact the Editors</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

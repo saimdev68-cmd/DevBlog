@@ -1,0 +1,76 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block dashboard_title %}Write New Article{% endblock %}
+
+{% block dashboard_content %}
+<div style="max-width: 900px;">
+    <div class="card" style="padding: 2.5rem;">
+        <form method="post" enctype="multipart/form-data" novalidate id="postForm">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+            <div class="alert alert-error" style="margin-bottom: 1.5rem;">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+
+            <div class="form-group">
+                <label for="{{ form.title.id_for_label }}" class="form-label">Article Title *</label>
+                {{ form.title }}
+                {% if form.title.errors %}<div class="form-error">{{ form.title.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="form-group">
+                    <label for="{{ form.category.id_for_label }}" class="form-label">Category</label>
+                    {{ form.category }}
+                    {% if form.category.errors %}<div class="form-error">{{ form.category.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.status.id_for_label }}" class="form-label">Status</label>
+                    {{ form.status }}
+                    {% if form.status.errors %}<div class="form-error">{{ form.status.errors.0 }}</div>{% endif %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.tags.id_for_label }}" class="form-label">Tags (Hold Ctrl/Cmd to select multiple)</label>
+                {{ form.tags }}
+                {% if form.tags.errors %}<div class="form-error">{{ form.tags.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.featured_image.id_for_label }}" class="form-label">Featured Header Image</label>
+                {{ form.featured_image }}
+                {% if form.featured_image.errors %}<div class="form-error">{{ form.featured_image.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.excerpt.id_for_label }}" class="form-label">Short Summary (Excerpt)</label>
+                {{ form.excerpt }}
+                <div class="form-help">Leave empty to automatically generate from the first paragraph of content.</div>
+                {% if form.excerpt.errors %}<div class="form-error">{{ form.excerpt.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.content.id_for_label }}" class="form-label">Article Content (Markdown or HTML) *</label>
+                {{ form.content }}
+                {% if form.content.errors %}<div class="form-error">{{ form.content.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="form-group" style="margin-top: 1rem;">
+                <label class="flex items-center gap-2" style="cursor: pointer;">
+                    {{ form.is_featured }}
+                    <span style="font-weight: 600; font-size: 0.95rem;">Mark as Featured Story (Highlights on homepage)</span>
+                </label>
+            </div>
+
+            <div class="flex items-center justify-between" style="margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--color-border);">
+                <a href="{% url 'dashboard:post_list' %}" class="btn btn-outline">Cancel</a>
+                <button type="submit" class="btn btn-primary btn-lg">Publish Article</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

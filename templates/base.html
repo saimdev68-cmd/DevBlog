@@ -1,0 +1,56 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Favicon & App Icons -->
+    <link rel="icon" type="image/svg+xml" href="{% static 'images/favicon.svg' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon-16x16.png' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/apple-touch-icon.png' %}">
+    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
+
+    <title>{% block title %}DevBlog - Modern Developer Publication{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}Ideas, insights, and engineering stories from the world of technology.{% endblock %}">
+    <meta name="robots" content="{% block meta_robots %}index, follow{% endblock %}">
+    <link rel="canonical" href="{% block canonical_url %}{{ request.build_absolute_uri }}{% endblock %}">
+
+    <!-- Open Graph Metadata -->
+    <meta property="og:site_name" content="DevBlog">
+    <meta property="og:title" content="{% block og_title %}{% block title_plain %}DevBlog - Modern Developer Publication{% endblock %}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Ideas, insights, and stories from the world of technology.{% endblock %}">
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    {% block og_image %}
+    <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'images/og-default.png' %}">
+    {% endblock %}
+
+    <!-- Twitter / X Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}{% block twitter_title_plain %}DevBlog{% endblock %}{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}Ideas, insights, and stories from the world of technology.{% endblock %}">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/components.css' %}">
+    <link rel="stylesheet" href="{% static 'css/skeletons.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body id="top">
+    {% include 'partials/navbar.html' %}
+    {% include 'partials/messages.html' %}
+
+    <main id="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include 'partials/footer.html' %}
+
+    <!-- Scripts -->
+    <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/skeleton.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,249 @@
+/* ==========================================================================
+   DevBlog - Core Design System & Global Styles
+   Classy Premium Editorial Publication
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&display=swap');
+
+:root {
+    /* Editorial Color Palette */
+    --color-bg: #FAF9F7;               /* Warm ivory/off-white */
+    --color-surface: #FFFFFF;          /* Pure white surface */
+    --color-surface-hover: #F5F2EE;    /* Soft ivory wash */
+    --color-text: #17151A;             /* Near-black */
+    --color-muted: #6F6A73;            /* Warm gray */
+    --color-muted-light: #9E99A3;
+    --color-border: #E8E3E8;           /* Refined muted border */
+    --color-border-hover: #D5CCD5;
+
+    /* Brand & Accent Colors */
+    --color-primary: #6B3F69;          /* Deep plum */
+    --color-primary-hover: #55304F;    /* Darker plum */
+    --color-primary-light: #F6EFF5;    /* Very soft plum wash */
+    --color-primary-focus: rgba(107, 63, 105, 0.2);
+
+    --color-mauve: #A982A5;            /* Secondary accent */
+    --color-mauve-light: #F7F1F6;
+    
+    --color-accent: #D98C7A;           /* Warm coral/rose */
+    --color-accent-soft: #F5E8E4;      /* Soft rose */
+    --color-accent-hover: #C67A68;
+
+    /* Status Indicators */
+    --color-success: #2E8555;
+    --color-success-bg: #EDF7F1;
+    --color-warning: #C77A18;
+    --color-warning-bg: #FDF6EC;
+    --color-error: #B85C68;            /* Muted red/rose */
+    --color-error-bg: #FBF0F2;
+    --color-danger: #B85C68;
+    --color-danger-hover: #9E4954;
+
+    /* Code Block Dark Surface */
+    --color-code-bg: #17151A;          /* Plum charcoal */
+    --color-code-text: #FAF9F7;
+
+    /* Typography */
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-serif: 'Newsreader', Georgia, Cambria, 'Times New Roman', Times, serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+    /* Refined Editorial Radii */
+    --radius-sm: 8px;
+    --radius-md: 10px;
+    --radius-lg: 12px;
+    --radius-full: 9999px;
+
+    /* Soft Editorial Shadows */
+    --shadow-sm: 0 1px 3px rgba(23, 21, 26, 0.04);
+    --shadow-md: 0 4px 12px rgba(23, 21, 26, 0.06);
+    --shadow-lg: 0 12px 28px rgba(23, 21, 26, 0.08);
+
+    /* Layout Max Widths */
+    --container-max-width: 1200px;
+    --article-max-width: 760px;
+}
+
+/* Base Reset */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    font-family: var(--font-sans);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+/* Typography Hierarchy */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--color-text);
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+}
+
+h1 { font-size: 2.25rem; }
+h2 { font-size: 1.75rem; }
+h3 { font-size: 1.35rem; }
+h4 { font-size: 1.15rem; }
+
+p {
+    margin-bottom: 1rem;
+    color: var(--color-text);
+}
+
+a {
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+a:hover {
+    color: var(--color-primary-hover);
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+ul, ol {
+    margin-left: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+li {
+    margin-bottom: 0.25rem;
+}
+
+/* Layout Utilities */
+.container {
+    width: 100%;
+    max-width: var(--container-max-width);
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.container-narrow {
+    width: 100%;
+    max-width: var(--article-max-width);
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.flex { display: flex; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.justify-center { justify-content: center; }
+.flex-col { flex-direction: column; }
+.gap-1 { gap: 0.25rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+.gap-4 { gap: 1rem; }
+.gap-6 { gap: 1.5rem; }
+.gap-8 { gap: 2rem; }
+
+.grid { display: grid; }
+.grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+.grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+.w-full { width: 100%; }
+.text-center { text-align: center; }
+.text-muted { color: var(--color-muted); }
+.text-sm { font-size: 0.875rem; }
+.text-xs { font-size: 0.75rem; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+
+.section {
+    padding: 4rem 0;
+}
+
+.section-sm {
+    padding: 2rem 0;
+}
+
+/* Code Blocks Styling */
+pre {
+    background-color: var(--color-code-bg);
+    color: var(--color-code-text);
+    padding: 1.25rem 1.5rem;
+    border-radius: var(--radius-md);
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin: 1.5rem 0;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+code {
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+    padding: 0.15rem 0.4rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(107, 63, 105, 0.15);
+}
+
+pre code {
+    background-color: transparent;
+    color: inherit;
+    padding: 0;
+    border: none;
+}
+
+/* Blockquotes */
+blockquote {
+    border-left: 3px solid var(--color-primary);
+    background-color: var(--color-primary-light);
+    padding: 1.25rem 1.75rem;
+    margin: 1.75rem 0;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    font-style: italic;
+    color: var(--color-text);
+}
+
+/* Responsive Media Queries */
+@media (max-width: 1024px) {
+    .grid-cols-3 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    h1 { font-size: 1.85rem; }
+    h2 { font-size: 1.5rem; }
+    .grid-cols-3, .grid-cols-2 {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+    .section {
+        padding: 2.5rem 0;
+    }
+    .container {
+        padding: 0 1rem;
+    }
+}

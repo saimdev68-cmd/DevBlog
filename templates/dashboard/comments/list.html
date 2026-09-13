@@ -1,0 +1,77 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block dashboard_title %}Manage Comments{% endblock %}
+
+{% block dashboard_content %}
+<div class="table-card">
+    <div class="table-header">
+        <h3 style="margin: 0; font-size: 1.1rem;">Reader Discussions & Moderation</h3>
+        <span class="text-sm text-muted">All comments posted on your articles</span>
+    </div>
+
+    <div class="table-responsive">
+        <table class="dashboard-table">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Article</th>
+                    <th>Comment Content</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in comments %}
+                <tr>
+                    <td>
+                        <div style="font-weight: 600;">{{ c.user.full_name }}</div>
+                        <div class="text-xs text-muted">{{ c.user.email }}</div>
+                    </td>
+                    <td>
+                        <a href="{{ c.post.get_absolute_url }}" target="_blank" style="font-weight: 500; font-size: 0.85rem;">
+                            {{ c.post.title|truncatewords:6 }}
+                        </a>
+                    </td>
+                    <td style="max-width: 280px; font-size: 0.85rem; color: #334155;">
+                        {{ c.content }}
+                    </td>
+                    <td class="text-xs text-muted">
+                        {{ c.created_at|date:"M d, Y" }}
+                    </td>
+                    <td>
+                        {% if c.is_approved %}
+                        <span class="badge badge-success">Approved</span>
+                        {% else %}
+                        <span class="badge badge-error">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="action-btn-group">
+                            {% if not c.is_approved %}
+                            <form action="{% url 'dashboard:comment_approve' c.pk %}" method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary btn-sm">Approve</button>
+                            </form>
+                            {% endif %}
+                            <form action="{% url 'dashboard:comment_delete' c.pk %}" method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm" data-confirm-delete="Are you sure you want to permanently delete this comment?">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted" style="padding: 3rem;">
+                        No comments found. When readers comment on your articles, they will appear here for moderation.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% include 'partials/pagination.html' %}
+{% endblock %}
