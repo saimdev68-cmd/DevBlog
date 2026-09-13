@@ -545,6 +545,98 @@ class UserModelAndProfileTests(TestCase):
         self.assertTrue(otp_record.is_used)
 
 
+from unittest.mock import patch, MagicMock
+
+
+class GoogleOAuthTests(TestCase):
+    def test_google_login_redirect(self):
+        """Test initiating Google OAuth redirects to Google with state in session."""
+        response = self.client.get(reverse('accounts:google_login'))
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith('https://accounts.google.com/o/oauth2/auth'))
+        self.assertIn('client_id=', response.url)
+        self.assertIn('state=', response.url)
+        self.assertIn('google_oauth_state', self.client.session)
+
+    def test_google_callback_state_mismatch(self):
+        """Test callback with state mismatch fails safely and redirects to login."""
+        session = self.client.session
+        session['google_oauth_state'] = 'correct_state_token'
+        session.save()
+
+        response = self.client.get(reverse('accounts:google_callback'), {
+            'state': 'wrong_state_token',
+            'code': 'sample_code'
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('accounts:login'))
+
+    def test_google_callback_user_denied(self):
+        """Test user cancelling Google consent redirects cleanly to login."""
+        response = self.client.get(reverse('accounts:google_callback'), {
+            'error': 'access_denied'
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('accounts:login'))
+
+    @patch('requests.get')
+    @patch('requests.post')
+    def test_google_callback_new_user_success(self, mock_post, mock_get):
+        """Test successful Google OAuth creates verified user and authenticates session."""
+        session = self.client.session
+        session['google_oauth_state'] = 'valid_oauth_state_123'
+        session.save()
+
+        # Mock token exchange
+        token_resp = MagicMock()
+        token_resp.status_code = 200
+        token_resp.json.return_value = {'access_token': 'mock_access_token_xyz'}
+        mock_post.return_value = token_resp
+
+        # Mock userinfo endpoint
+        userinfo_resp = MagicMock()
+        userinfo_resp.status_code = 200
+        userinfo_resp.json.return_value = {
+            'email': 'newgoogler@example.com',
+            'given_name': 'Google',
+            'family_name': 'Engineer',
+            'picture': ''
+        }
+        mock_get.return_value = userinfo_resp
+
+        response = self.client.get(reverse('accounts:google_callback'), {
+            'state': 'valid_oauth_state_123',
+            'code': 'valid_code_abc'
+        })
+        self.assertEqual(response.status_code, 302)
+
+        user = User.objects.filter(email='newgoogler@example.com').first()
+        self.assertIsNotNone(user)
+        self.assertEqual(user.first_name, 'Google')
+        self.assertEqual(user.last_name, 'Engineer')
+        self.assertTrue(user.is_email_verified)
+        self.assertEqual(int(self.client.session['_auth_user_id']), user.pk)
+
+
+class CeleryAndEmailBackendTests(TestCase):
+    def test_celery_otp_task_execution(self):
+        """Test executing the Celery OTP email background task directly."""
+        from apps.accounts.tasks import send_otp_verification_email_task
+        from django.core import mail
+        mail.outbox = []
+
+        user = User.objects.create_user(
+            email='celeryuser@example.com',
+            first_name='Celery',
+            last_name='Tester'
+        )
+
+        result = send_otp_verification_email_task(user.id, '987654')
+        self.assertTrue(result)
+        self.assertTrue(len(mail.outbox) > 0)
+        self.assertIn('987654', mail.outbox[-1].subject)
+
+
 
 
 

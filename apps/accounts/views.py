@@ -1,3 +1,8 @@
+import logging
+import secrets
+from urllib.parse import urlencode
+import requests
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, logout, update_session_auth_hash, views as auth_views
 from django.contrib.auth.decorators import login_required
@@ -694,6 +699,184 @@ def email_change_view(request):
 @login_required
 def current_profile_view(request):
     return redirect('accounts:author_profile', pk=request.user.pk)
+
+
+logger = logging.getLogger(__name__)
+
+
+def google_login_view(request):
+    """
+    Initiates Google OAuth 2.0 flow.
+    Redirects the user to Google's authentication consent / account selection screen.
+    """
+    if request.user.is_authenticated:
+        return redirect('core:home')
+
+    # Security: Generate CSRF state token
+    state = secrets.token_urlsafe(32)
+    request.session['google_oauth_state'] = state
+
+    # Capture optional next redirect parameter
+    next_url = request.GET.get('next', '')
+    if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+        request.session['google_oauth_next'] = next_url
+    else:
+        request.session.pop('google_oauth_next', None)
+
+    client_id = getattr(settings, 'GOOGLE_CLIENT_ID', '')
+    redirect_uri = getattr(settings, 'GOOGLE_REDIRECT_URI', '') or request.build_absolute_uri(reverse('accounts:google_callback'))
+
+    params = {
+        'client_id': client_id,
+        'redirect_uri': redirect_uri,
+        'response_type': 'code',
+        'scope': 'openid email profile',
+        'state': state,
+        'access_type': 'online',
+        'prompt': 'select_account',
+    }
+
+    auth_url = f"https://accounts.google.com/o/oauth2/auth?{urlencode(params)}"
+    return redirect(auth_url)
+
+
+def google_callback_view(request):
+    """
+    Handles Google OAuth 2.0 callback.
+    Verifies CSRF state, exchanges authorization code for tokens, retrieves profile,
+    and logs in or registers the user.
+    """
+    if request.user.is_authenticated:
+        return redirect('core:home')
+
+    # Handle user cancellation or denial
+    error = request.GET.get('error')
+    if error:
+        logger.info(f"Google OAuth cancelled or returned error: {error}")
+        messages.warning(request, "Google sign-in was cancelled.")
+        return redirect('accounts:login')
+
+    # Validate CSRF state parameter
+    state = request.GET.get('state')
+    saved_state = request.session.pop('google_oauth_state', None)
+    if not state or not saved_state or not secrets.compare_digest(state, saved_state):
+        logger.warning("Google OAuth state mismatch or missing token.")
+        messages.error(request, "Security check failed: Invalid authentication state. Please try signing in again.")
+        return redirect('accounts:login')
+
+    code = request.GET.get('code')
+    if not code:
+        logger.warning("Google OAuth code parameter missing.")
+        messages.error(request, "Authorization code not received from Google.")
+        return redirect('accounts:login')
+
+    client_id = getattr(settings, 'GOOGLE_CLIENT_ID', '')
+    client_secret = getattr(settings, 'GOOGLE_CLIENT_SECRET', '')
+    redirect_uri = getattr(settings, 'GOOGLE_REDIRECT_URI', '') or request.build_absolute_uri(reverse('accounts:google_callback'))
+
+    token_url = "https://oauth2.googleapis.com/token"
+    token_payload = {
+        'code': code,
+        'client_id': client_id,
+        'client_secret': client_secret,
+        'redirect_uri': redirect_uri,
+        'grant_type': 'authorization_code',
+    }
+
+    try:
+        token_response = requests.post(token_url, data=token_payload, timeout=10)
+        if token_response.status_code != 200:
+            logger.error(f"Google token exchange failed ({token_response.status_code}): {token_response.text}")
+            messages.error(request, "Failed to authenticate with Google. Please check your credentials and try again.")
+            return redirect('accounts:login')
+        token_data = token_response.json()
+        access_token = token_data.get('access_token')
+    except Exception as exc:
+        logger.error(f"Error during Google token request: {exc}")
+        messages.error(request, "Unable to communicate with Google authentication servers. Please try again later.")
+        return redirect('accounts:login')
+
+    if not access_token:
+        messages.error(request, "Did not receive access token from Google.")
+        return redirect('accounts:login')
+
+    # Fetch Google user profile
+    try:
+        userinfo_response = requests.get(
+            'https://www.googleapis.com/oauth2/v2/userinfo',
+            headers={'Authorization': f'Bearer {access_token}'},
+            timeout=10,
+        )
+        if userinfo_response.status_code != 200:
+            logger.error(f"Google userinfo request failed ({userinfo_response.status_code}): {userinfo_response.text}")
+            messages.error(request, "Could not fetch user profile details from Google.")
+            return redirect('accounts:login')
+        user_info = userinfo_response.json()
+    except Exception as exc:
+        logger.error(f"Error requesting Google userinfo: {exc}")
+        messages.error(request, "Unable to load profile data from Google.")
+        return redirect('accounts:login')
+
+    email = user_info.get('email')
+    if not email:
+        messages.error(request, "Your Google account did not share an email address with DevBlog.")
+        return redirect('accounts:login')
+
+    first_name = user_info.get('given_name', '').strip()
+    last_name = user_info.get('family_name', '').strip()
+    picture_url = user_info.get('picture', '')
+
+    user = User.objects.filter(email__iexact=email).first()
+    is_new_user = False
+
+    if not user:
+        user = User.objects.create_user(
+            email=email,
+            first_name=first_name,
+            last_name=last_name,
+            is_email_verified=True,
+        )
+        user.set_unusable_password()
+        user.save()
+        is_new_user = True
+    else:
+        update_fields = []
+        if not user.is_email_verified:
+            user.is_email_verified = True
+            update_fields.append('is_email_verified')
+        if not user.first_name and first_name:
+            user.first_name = first_name
+            update_fields.append('first_name')
+        if not user.last_name and last_name:
+            user.last_name = last_name
+            update_fields.append('last_name')
+        if update_fields:
+            user.save(update_fields=update_fields)
+
+    # If user profile has no avatar and Google provided picture, attempt to store picture URL or save
+    if hasattr(user, 'profile') and not user.profile.avatar and picture_url:
+        try:
+            from django.core.files.base import ContentFile
+            img_resp = requests.get(picture_url, timeout=5)
+            if img_resp.status_code == 200:
+                user.profile.avatar.save(f"google_avatar_{user.id}.jpg", ContentFile(img_resp.content), save=True)
+        except Exception as e:
+            logger.debug(f"Could not download Google avatar: {e}")
+
+    # Log the user into Django session
+    login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+
+    # Resolve post-login destination
+    next_url = request.session.pop('google_oauth_next', '')
+    if not next_url or not url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+        next_url = str(reverse_lazy('dashboard:index')) if user.is_staff else str(reverse_lazy('core:home'))
+
+    if is_new_user:
+        messages.success(request, f"Welcome to DevBlog, {user.first_name or user.email}! Your account is now active.")
+    else:
+        messages.success(request, f"Welcome back, {user.first_name or user.email}!")
+
+    return redirect(next_url)
 
 
 

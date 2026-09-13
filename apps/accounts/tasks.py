@@ -1,27 +1,26 @@
 import logging
+from celery import shared_task
+from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 
-logger = logging.getLogger('apps.accounts')
+logger = logging.getLogger(__name__)
 
 
-def send_otp_verification_email(user, otp_code):
+@shared_task(bind=True, max_retries=3, default_retry_delay=5)
+def send_otp_verification_email_task(self, user_id, otp_code):
     """
-    Sends a branded 6-digit OTP verification email to the user.
-    Dispatches via Celery background task when available; falls back
-    to direct delivery if the Celery broker/worker is unavailable.
+    Celery background task to render and send the 6-digit OTP verification email.
+    Uses configured EMAIL_BACKEND (which prints to terminal and sends via SMTP).
     """
-    # Attempt asynchronous Celery dispatch
+    User = get_user_model()
     try:
-        from .tasks import send_otp_verification_email_task
-        send_otp_verification_email_task.apply_async(args=[user.id, otp_code], retry=False)
-        logger.info(f"Queued Celery OTP email task for {user.email}")
-        return True
-    except Exception as exc:
-        logger.warning(f"Celery broker unavailable ({exc}); falling back to direct email delivery.")
+        user = User.objects.get(pk=user_id)
+    except User.DoesNotExist:
+        logger.error(f"[Celery] User with id {user_id} not found. Aborting OTP email.")
+        return False
 
-    # Synchronous fallback
     subject = f"[DevBlog] Your Verification Code: {otp_code}"
     from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'DevBlog <noreply@devblog.com>')
     to_email = [user.email]
@@ -52,29 +51,28 @@ def send_otp_verification_email(user, otp_code):
 
     try:
         msg.send(fail_silently=False)
-        logger.info(f"Verification OTP email sent to {user.email}")
+        logger.info(f"[Celery] Verification OTP email dispatched for {user.email}")
         return True
     except Exception as exc:
-        logger.error(f"Failed to send verification OTP email to {user.email}: {exc}")
+        logger.error(f"[Celery] Error delivering OTP email to {user.email}: {exc}")
+        try:
+            self.retry(exc=exc)
+        except Exception:
+            return False
+
+
+@shared_task(bind=True, max_retries=3, default_retry_delay=5)
+def send_email_change_otp_task(self, user_id, new_email, otp_code):
+    """
+    Celery background task to render and send the email change OTP confirmation.
+    """
+    User = get_user_model()
+    try:
+        user = User.objects.get(pk=user_id)
+    except User.DoesNotExist:
+        logger.error(f"[Celery] User with id {user_id} not found. Aborting email change OTP.")
         return False
 
-
-def send_email_change_otp(user, new_email, otp_code):
-    """
-    Sends an OTP verification code to the requested *new* email address.
-    Dispatches via Celery background task when available; falls back
-    to direct delivery if the Celery broker/worker is unavailable.
-    """
-    # Attempt asynchronous Celery dispatch
-    try:
-        from .tasks import send_email_change_otp_task
-        send_email_change_otp_task.apply_async(args=[user.id, new_email, otp_code], retry=False)
-        logger.info(f"Queued Celery email change OTP task for {new_email}")
-        return True
-    except Exception as exc:
-        logger.warning(f"Celery broker unavailable ({exc}); falling back to direct email delivery.")
-
-    # Synchronous fallback
     subject = f"[DevBlog] Confirm Your New Email Address: {otp_code}"
     from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'DevBlog <noreply@devblog.com>')
     to_email = [new_email]
@@ -106,8 +104,35 @@ def send_email_change_otp(user, new_email, otp_code):
 
     try:
         msg.send(fail_silently=False)
-        logger.info(f"Email change OTP sent to {new_email} for user {user.email}")
+        logger.info(f"[Celery] Email change OTP email dispatched for {new_email}")
         return True
     except Exception as exc:
-        logger.error(f"Failed to send email change OTP to {new_email}: {exc}")
+        logger.error(f"[Celery] Error delivering email change OTP to {new_email}: {exc}")
+        try:
+            self.retry(exc=exc)
+        except Exception:
+            return False
+
+
+@shared_task(bind=True, max_retries=3, default_retry_delay=5)
+def send_generic_email_task(self, subject, text_content, from_email=None, recipient_list=None, html_content=None):
+    """
+    General purpose background email delivery task for Celery.
+    """
+    if not recipient_list:
         return False
+
+    from_email = from_email or getattr(settings, 'DEFAULT_FROM_EMAIL', 'DevBlog <noreply@devblog.com>')
+    msg = EmailMultiAlternatives(subject, text_content, from_email, recipient_list)
+    if html_content:
+        msg.attach_alternative(html_content, "text/html")
+
+    try:
+        msg.send(fail_silently=False)
+        return True
+    except Exception as exc:
+        logger.error(f"[Celery] Error in generic email task: {exc}")
+        try:
+            self.retry(exc=exc)
+        except Exception:
+            return False
