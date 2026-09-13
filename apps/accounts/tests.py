@@ -615,7 +615,42 @@ class GoogleOAuthTests(TestCase):
         self.assertEqual(user.first_name, 'Google')
         self.assertEqual(user.last_name, 'Engineer')
         self.assertTrue(user.is_email_verified)
+        self.assertTrue(user.is_google_user)
+        self.assertTrue(user.is_google_account)
         self.assertEqual(int(self.client.session['_auth_user_id']), user.pk)
+
+    def test_google_user_cannot_edit_email(self):
+        """Test that accounts logged in via Google are blocked from changing email."""
+        google_user = User.objects.create_user(
+            email='googler@example.com',
+            first_name='Google',
+            last_name='User',
+            is_email_verified=True,
+            is_google_user=True,
+        )
+        self.client.force_login(google_user)
+
+        # 1. Accessing email change page redirects to profile
+        resp = self.client.get(reverse('accounts:email_change'))
+        self.assertEqual(resp.status_code, 302)
+        self.assertRedirects(resp, reverse('accounts:author_profile', kwargs={'pk': google_user.pk}))
+
+        # 2. POSTing to request_email_change is blocked
+        resp_post = self.client.post(reverse('accounts:request_email_change'), {
+            'new_email': 'hacked@example.com',
+            'current_password': 'any'
+        }, headers={'x-requested-with': 'XMLHttpRequest'})
+        self.assertEqual(resp_post.status_code, 403)
+
+        # 3. POSTing to verify_email_change is blocked
+        resp_verify = self.client.post(reverse('accounts:verify_email_change'), {
+            'otp_code': '123456'
+        }, headers={'x-requested-with': 'XMLHttpRequest'})
+        self.assertEqual(resp_verify.status_code, 403)
+
+        # 4. Profile page does NOT contain Change Email link
+        profile_resp = self.client.get(reverse('accounts:author_profile', kwargs={'pk': google_user.pk}))
+        self.assertNotContains(profile_resp, reverse('accounts:email_change'))
 
 
 class CeleryAndEmailBackendTests(TestCase):

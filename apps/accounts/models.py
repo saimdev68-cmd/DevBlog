@@ -56,6 +56,11 @@ class User(AbstractBaseUser, PermissionsMixin):
         default=False,
         help_text=_("Designates whether this user has verified their email address with OTP."),
     )
+    is_google_user = models.BooleanField(
+        _("google account"),
+        default=False,
+        help_text=_("Designates whether this user authenticated with Google OAuth."),
+    )
     date_joined = models.DateTimeField(_("date joined"), default=timezone.now)
 
     objects = CustomUserManager()
@@ -75,6 +80,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     def full_name(self):
         full = f"{self.first_name} {self.last_name}".strip()
         return full if full else self.email
+
+    @property
+    def is_google_account(self):
+        return self.is_google_user or not self.has_usable_password()
 
 
 class Profile(models.Model):

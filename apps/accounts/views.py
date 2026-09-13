@@ -445,6 +445,13 @@ def change_password_ajax_view(request):
 @login_required
 def request_email_change_view(request):
     """Validates current password & new email, then generates and sends a 6-digit OTP to the new email."""
+    if request.user.is_google_account:
+        msg = "Email addresses for Google-authenticated accounts cannot be changed."
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'message': msg}, status=403)
+        messages.error(request, msg)
+        return redirect('accounts:author_profile', pk=request.user.pk)
+
     if request.method != 'POST':
         return redirect('accounts:author_profile', pk=request.user.pk)
 
@@ -498,6 +505,9 @@ def request_email_change_view(request):
 @login_required
 def verify_email_change_view(request):
     """Verifies the 6-digit OTP sent to new email. Only upon success is the user email updated."""
+    if request.user.is_google_account:
+        return JsonResponse({'success': False, 'message': "Google accounts cannot modify their email."}, status=403)
+
     if request.method != 'POST':
         return redirect('accounts:author_profile', pk=request.user.pk)
 
@@ -580,6 +590,9 @@ def verify_email_change_view(request):
 @login_required
 def resend_email_change_otp_view(request):
     """Resends a fresh 6-digit OTP code to the requested new email address."""
+    if request.user.is_google_account:
+        return JsonResponse({'success': False, 'message': "Google accounts cannot modify their email."}, status=403)
+
     if request.method != 'POST':
         return redirect('accounts:author_profile', pk=request.user.pk)
 
@@ -678,6 +691,10 @@ def edit_profile_view(request):
 def email_change_view(request):
     """Dedicated page for requesting and confirming an email change via OTP."""
     user = request.user
+    if user.is_google_account:
+        messages.warning(request, "Your email address is managed by your Google account and cannot be modified.")
+        return redirect('accounts:author_profile', pk=user.pk)
+
     pending_otp = EmailVerificationOTP.objects.filter(
         user=user,
         is_used=False
@@ -835,12 +852,16 @@ def google_callback_view(request):
             first_name=first_name,
             last_name=last_name,
             is_email_verified=True,
+            is_google_user=True,
         )
         user.set_unusable_password()
         user.save()
         is_new_user = True
     else:
         update_fields = []
+        if not user.is_google_user:
+            user.is_google_user = True
+            update_fields.append('is_google_user')
         if not user.is_email_verified:
             user.is_email_verified = True
             update_fields.append('is_email_verified')
