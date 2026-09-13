@@ -72,6 +72,8 @@
                     <span class="avatar">
                         {% if user.profile.avatar %}
                         <img src="{{ user.profile.avatar.url }}" alt="{{ user.full_name }}" class="avatar">
+                        {% elif user.is_staff or user.email == 'admin@devblog.io' %}
+                        <img src="{% static 'images/logo.svg' %}" alt="DevBlog" class="avatar" style="background: var(--color-surface); padding: 2px;">
                         {% else %}
                         {{ user.email|first|upper }}
                         {% endif %}

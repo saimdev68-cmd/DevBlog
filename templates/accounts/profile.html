@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}{{ author_user.full_name }} - DevBlog{% endblock %}
 {% block meta_description %}Read articles, essays, and recommendations by {{ author_user.full_name }} on DevBlog.{% endblock %}
@@ -11,9 +12,11 @@
         
         <!-- Large Avatar -->
         <div style="position: relative; display: inline-block; margin-bottom: 1.5rem;">
-            <span class="avatar avatar-lg image-skeleton-container" style="width: 104px; height: 104px; font-size: 2.5rem; margin: 0 auto; box-shadow: var(--shadow-md); border: 3px solid #FFFFFF; border-radius: 50%;">
+            <span class="avatar avatar-lg {% if author_user.profile.avatar or author_user.is_staff or author_user.email == 'admin@devblog.io' %}image-skeleton-container{% endif %}" style="width: 104px; height: 104px; font-size: 2.5rem; margin: 0 auto; box-shadow: var(--shadow-md); border: 3px solid #FFFFFF; border-radius: 50%;">
                 {% if author_user.profile.avatar %}
                 <img src="{{ author_user.profile.avatar.url }}" alt="{{ author_user.full_name }}" class="avatar progressive-img" style="width: 104px; height: 104px; object-fit: cover;">
+                {% elif author_user.is_staff or author_user.email == 'admin@devblog.io' %}
+                <img src="{% static 'images/logo.svg' %}" alt="DevBlog" class="avatar progressive-img" style="width: 104px; height: 104px; object-fit: contain; background: var(--color-surface); padding: 14px;">
                 {% else %}
                 {{ author_user.email|first|upper }}
                 {% endif %}

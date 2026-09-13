@@ -114,6 +114,18 @@ class Profile(models.Model):
     def display_name(self):
         return self.user.full_name
 
+    @property
+    def avatar_url(self):
+        if self.avatar:
+            try:
+                return self.avatar.url
+            except Exception:
+                pass
+        if self.user.is_staff or self.user.email == 'admin@devblog.io':
+            from django.templatetags.static import static
+            return static('images/logo.svg')
+        return None
+
 
 @receiver(post_save, sender=User)
 def create_or_update_user_profile(sender, instance, created, **kwargs):

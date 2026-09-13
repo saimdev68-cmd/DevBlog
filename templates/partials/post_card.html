@@ -23,9 +23,11 @@
 
         <div class="post-card-meta">
             <div class="post-author-box">
-                <a href="{% url 'accounts:author_profile' post.author.pk %}" class="avatar image-skeleton-container" title="{{ post.author.full_name }}" style="border-radius: 50%;">
+                <a href="{% url 'accounts:author_profile' post.author.pk %}" class="avatar {% if post.author.profile.avatar or post.author.is_staff or post.author.email == 'admin@devblog.io' %}image-skeleton-container{% endif %}" title="{{ post.author.full_name }}" style="border-radius: 50%;">
                     {% if post.author.profile.avatar %}
                     <img src="{{ post.author.profile.avatar.url }}" alt="{{ post.author.full_name }}" class="avatar progressive-img">
+                    {% elif post.author.is_staff or post.author.email == 'admin@devblog.io' %}
+                    <img src="{% static 'images/logo.svg' %}" alt="DevBlog" class="avatar progressive-img" style="background: var(--color-surface); padding: 2px;">
                     {% else %}
                     {{ post.author.email|first|upper }}
                     {% endif %}

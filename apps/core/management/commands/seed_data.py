@@ -71,13 +71,22 @@ class Command(BaseCommand):
                 author.set_password('admin123456')
                 author.save()
 
-        # Update profile bio if empty
+        # Update profile bio and avatar with site logo
         if hasattr(author, 'profile'):
             if not author.profile.bio:
                 author.profile.bio = "Systems architect and technical writer at DevBlog covering high-scale web architecture."
                 author.profile.website = "https://github.com/saimdev68-cmd/DevBlog"
                 author.profile.github = "https://github.com/saimdev68-cmd/DevBlog"
-                author.profile.save()
+            if not author.profile.avatar:
+                import shutil
+                avatars_dir = os.path.join(settings.MEDIA_ROOT, 'avatars')
+                os.makedirs(avatars_dir, exist_ok=True)
+                src = os.path.join(settings.BASE_DIR, 'static', 'images', 'logo.png')
+                dst = os.path.join(avatars_dir, 'devblog_logo.png')
+                if os.path.exists(src):
+                    shutil.copyfile(src, dst)
+                    author.profile.avatar = 'avatars/devblog_logo.png'
+            author.profile.save()
 
         # 2. Categories
         cat_django, _ = Category.objects.get_or_create(

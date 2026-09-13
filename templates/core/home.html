@@ -57,9 +57,11 @@
 
                 <div class="post-card-meta" style="padding-top: 1rem;">
                     <div class="post-author-box">
-                        <span class="avatar image-skeleton-container" style="border-radius: 50%;">
+                        <span class="avatar {% if featured_post.author.profile.avatar or featured_post.author.is_staff or featured_post.author.email == 'admin@devblog.io' %}image-skeleton-container{% endif %}" style="border-radius: 50%;">
                             {% if featured_post.author.profile.avatar %}
                             <img src="{{ featured_post.author.profile.avatar.url }}" alt="{{ featured_post.author.full_name }}" class="avatar progressive-img">
+                            {% elif featured_post.author.is_staff or featured_post.author.email == 'admin@devblog.io' %}
+                            <img src="{% static 'images/logo.svg' %}" alt="DevBlog" class="avatar progressive-img" style="background: var(--color-surface); padding: 2px;">
                             {% else %}
                             {{ featured_post.author.email|first|upper }}
                             {% endif %}
