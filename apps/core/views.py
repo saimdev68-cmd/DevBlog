@@ -13,33 +13,21 @@ class HomeView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Featured article (1 large)
-        featured_post = (
-            Post.objects.featured()
-            .select_related('category', 'author', 'author__profile')
-            .prefetch_related('tags')
-            .first()
-        )
-        if not featured_post:
-            featured_post = (
-                Post.objects.published()
-                .select_related('category', 'author', 'author__profile')
-                .prefetch_related('tags')
-                .first()
-            )
-
-        context['featured_post'] = featured_post
-
-        # Latest articles excluding featured if present
-        latest_posts_qs = (
+        # Fetch both featured and latest posts in a single query with with_counts()
+        posts = list(
             Post.objects.published()
             .select_related('category', 'author', 'author__profile')
             .prefetch_related('tags')
+            .with_counts()
+            .order_by('-is_featured', '-published_at', '-created_at')[:7]
         )
-        if featured_post:
-            latest_posts_qs = latest_posts_qs.exclude(pk=featured_post.pk)
 
-        context['latest_posts'] = latest_posts_qs[:6]
+        featured_post = posts[0] if posts else None
+        latest_posts = posts[1:] if len(posts) > 1 else []
+
+        context['featured_post'] = featured_post
+        context['latest_posts'] = latest_posts
+
 
         # Popular categories with post count
         context['popular_categories'] = (

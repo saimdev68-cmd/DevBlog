@@ -346,16 +346,28 @@ class AuthorProfileView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         author = self.get_object()
-        context['articles'] = author.posts.filter(status='PUBLISHED').select_related('category')
+        context['articles'] = (
+            author.posts.filter(status='PUBLISHED')
+            .select_related('category', 'author', 'author__profile')
+            .prefetch_related('tags')
+            .with_counts()
+        )
         context['articles_count'] = context['articles'].count()
 
         # Liked posts by this user
         from apps.blog.models import Post
-        context['liked_posts'] = Post.objects.filter(
-            likes__user=author,
-            status='PUBLISHED'
-        ).select_related('category', 'author', 'author__profile').order_by('-likes__created_at')
+        context['liked_posts'] = (
+            Post.objects.filter(
+                likes__user=author,
+                status='PUBLISHED'
+            )
+            .select_related('category', 'author', 'author__profile')
+            .prefetch_related('tags')
+            .with_counts()
+            .order_by('-likes__created_at')
+        )
         context['liked_posts_count'] = context['liked_posts'].count()
+
 
         is_owner = self.request.user.is_authenticated and self.request.user.pk == author.pk
         context['is_owner'] = is_owner

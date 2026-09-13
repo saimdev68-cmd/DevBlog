@@ -19,6 +19,7 @@ class PostListView(ListView):
             Post.objects.published()
             .select_related('category', 'author', 'author__profile')
             .prefetch_related('tags')
+            .with_counts()
         )
         category_slug = self.request.GET.get('category')
         tag_slug = self.request.GET.get('tag')
@@ -28,7 +29,7 @@ class PostListView(ListView):
         if tag_slug:
             qs = qs.filter(tags__slug=tag_slug)
 
-        return qs
+        return qs.order_by('-published_at', '-created_at')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -47,8 +48,8 @@ class PostDetailView(DetailView):
     def get_queryset(self):
         # Allow staff to preview drafts, but normal users can only view published articles
         if self.request.user.is_authenticated and self.request.user.is_staff:
-            return Post.objects.all().select_related('category', 'author', 'author__profile').prefetch_related('tags')
-        return Post.objects.published().select_related('category', 'author', 'author__profile').prefetch_related('tags')
+            return Post.objects.all().select_related('category', 'author', 'author__profile').prefetch_related('tags').with_counts()
+        return Post.objects.published().select_related('category', 'author', 'author__profile').prefetch_related('tags').with_counts()
 
     def get_object(self, queryset=None):
         obj = super().get_object(queryset)
@@ -57,9 +58,9 @@ class PostDetailView(DetailView):
         session_key = 'viewed_posts'
         viewed_posts = self.request.session.get(session_key, [])
         if obj.pk not in viewed_posts:
-            # Atomically increment views
+            # Atomically increment views in database and memory without extra round-trip
             Post.objects.filter(pk=obj.pk).update(views=F('views') + 1)
-            obj.refresh_from_db(fields=['views'])
+            obj.views += 1
             viewed_posts.append(obj.pk)
             self.request.session[session_key] = viewed_posts
         
@@ -70,27 +71,34 @@ class PostDetailView(DetailView):
         post = self.object
 
         # Related posts: same category or tags, excluding current post
-        related_posts = (
+        related_posts = list(
             Post.objects.published()
             .filter(Q(category=post.category) | Q(tags__in=post.tags.all()))
             .exclude(pk=post.pk)
             .distinct()
-            .select_related('category', 'author', 'author__profile')[:3]
+            .select_related('category', 'author', 'author__profile')
+            .prefetch_related('tags')
+            .with_counts()[:3]
         )
-        if related_posts.count() < 3:
-            fallback = (
+        if len(related_posts) < 3:
+            needed = 3 - len(related_posts)
+            exclude_pks = [post.pk] + [p.pk for p in related_posts]
+            fallback = list(
                 Post.objects.published()
-                .exclude(pk=post.pk)
-                .exclude(pk__in=related_posts.values_list('pk', flat=True))
-                .select_related('category', 'author', 'author__profile')[:3 - related_posts.count()]
+                .exclude(pk__in=exclude_pks)
+                .select_related('category', 'author', 'author__profile')
+                .prefetch_related('tags')
+                .with_counts()[:needed]
             )
-            related_posts = list(related_posts) + list(fallback)
+            related_posts.extend(fallback)
 
         context['related_posts'] = related_posts
 
-        # Approved comments
-        context['comments'] = post.comments.filter(is_approved=True).select_related('user', 'user__profile')
+        # Approved comments (evaluated as list to prevent duplicate COUNT queries)
+        comments = list(post.comments.filter(is_approved=True).select_related('user', 'user__profile'))
+        context['comments'] = comments
         context['comment_form'] = CommentForm()
+
 
         # Previous and Next articles
         context['previous_post'] = (
@@ -145,6 +153,7 @@ class CategoryPostListView(ListView):
             .filter(category=self.category)
             .select_related('category', 'author', 'author__profile')
             .prefetch_related('tags')
+            .with_counts()
         )
 
     def get_context_data(self, **kwargs):
@@ -167,6 +176,7 @@ class TagPostListView(ListView):
             .filter(tags=self.tag)
             .select_related('category', 'author', 'author__profile')
             .prefetch_related('tags')
+            .with_counts()
         )
 
     def get_context_data(self, **kwargs):
@@ -199,7 +209,9 @@ class PostSearchView(ListView):
             .distinct()
             .select_related('category', 'author', 'author__profile')
             .prefetch_related('tags')
+            .with_counts()
         )
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

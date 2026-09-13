@@ -69,6 +69,12 @@ class PostQuerySet(models.QuerySet):
     def featured(self):
         return self.published().filter(is_featured=True)
 
+    def with_counts(self):
+        from django.db.models import Count
+        return self.annotate(
+            likes_count=Count('likes', distinct=True)
+        )
+
 
 class PostManager(models.Manager):
     def get_queryset(self):
@@ -79,6 +85,10 @@ class PostManager(models.Manager):
 
     def featured(self):
         return self.get_queryset().featured()
+
+    def with_counts(self):
+        return self.get_queryset().with_counts()
+
 
 
 class Post(models.Model):
@@ -161,11 +171,25 @@ class Post(models.Model):
 
     @property
     def approved_comments_count(self):
+        if hasattr(self, '_approved_comments_count'):
+            return self._approved_comments_count
         return self.comments.filter(is_approved=True).count()
+
+    @approved_comments_count.setter
+    def approved_comments_count(self, value):
+        self._approved_comments_count = value
 
     @property
     def likes_count(self):
+        if hasattr(self, '_likes_count'):
+            return self._likes_count
         return self.likes.count()
+
+    @likes_count.setter
+    def likes_count(self, value):
+        self._likes_count = value
+
+
 
 
 class ArticleLike(models.Model):

@@ -193,9 +193,10 @@
         <!-- Comments Section -->
         <section id="comments" class="comments-section">
             <div class="flex items-center justify-between" style="margin-bottom: 1.5rem;">
-                <h2>Discussion ({{ comments.count }})</h2>
+                <h2>Discussion ({{ comments|length }})</h2>
                 <span class="badge badge-secondary">Moderated Editorial Discourse</span>
             </div>
+
 
             <div class="moderation-notice">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
