@@ -23,6 +23,8 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-devblog-production-grade-k
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True').strip().lower() in ('true', '1', 'yes')
 
+IS_TESTING = 'test' in sys.argv or 'test_coverage' in sys.argv
+
 ALLOWED_HOSTS = [
     host.strip()
     for host in os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
@@ -90,7 +92,34 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# Django Debug Toolbar Configuration (Enabled in development only, disabled during tests and production)
+INTERNAL_IPS = [
+    '127.0.0.1',
+    '::1',
+]
+
+
+def show_toolbar_callback(request):
+    if not DEBUG or IS_TESTING:
+        return False
+    remote_addr = request.META.get('REMOTE_ADDR', '')
+    return remote_addr in INTERNAL_IPS or request.META.get('HTTP_HOST', '').startswith(('localhost', '127.0.0.1'))
+
+
+DEBUG_TOOLBAR_CONFIG = {
+    'SHOW_TOOLBAR_CALLBACK': show_toolbar_callback,
+}
+
+if DEBUG and not IS_TESTING:
+    INSTALLED_APPS.append('debug_toolbar')
+    MIDDLEWARE.insert(
+        MIDDLEWARE.index('whitenoise.middleware.WhiteNoiseMiddleware') + 1,
+        'debug_toolbar.middleware.DebugToolbarMiddleware'
+    )
+
 ROOT_URLCONF = 'config.urls'
+
+
 
 TEMPLATES = [
     {
@@ -227,7 +256,6 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
-IS_TESTING = 'test' in sys.argv or 'test_coverage' in sys.argv
 CELERY_TASK_ALWAYS_EAGER = IS_TESTING or os.getenv('CELERY_TASK_ALWAYS_EAGER', 'False').lower() in ('true', '1')
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 CELERY_BROKER_TRANSPORT_OPTIONS = {
