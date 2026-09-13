@@ -876,7 +876,141 @@
     stroke: var(--color-accent);
 }
 
+/* Article Detail Bookmark / Read Later Button */
+.bookmark-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.55rem 1.25rem;
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    font-weight: 600;
+    font-size: 0.925rem;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-sm);
+    user-select: none;
+}
+
+.bookmark-btn:hover {
+    background-color: var(--color-accent-soft);
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+    transform: translateY(-1px);
+}
+
+.bookmark-btn:active {
+    transform: scale(0.96);
+}
+
+.bookmark-btn svg {
+    width: 19px;
+    height: 19px;
+    fill: transparent;
+    stroke: currentColor;
+    stroke-width: 2;
+    transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), fill 0.2s ease, stroke 0.2s ease;
+}
+
+.bookmark-btn.bookmarked {
+    background-color: var(--color-accent-soft);
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+}
+
+.bookmark-btn.bookmarked svg {
+    fill: var(--color-accent);
+    stroke: var(--color-accent);
+    transform: scale(1.1);
+}
+
+/* Post Card Quick Bookmark Button */
+.card-bookmark-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--color-muted);
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.2s ease;
+}
+
+.card-bookmark-btn:hover {
+    background: var(--color-accent-soft);
+    border-color: var(--color-border);
+    color: var(--color-accent);
+    transform: translateY(-1px);
+}
+
+.card-bookmark-btn svg {
+    width: 16px;
+    height: 16px;
+    fill: transparent;
+    stroke: currentColor;
+    stroke-width: 2;
+    transition: all 0.2s ease;
+}
+
+.card-bookmark-btn.bookmarked {
+    color: var(--color-accent);
+    background: var(--color-accent-soft);
+}
+
+.card-bookmark-btn.bookmarked svg {
+    fill: var(--color-accent);
+    stroke: var(--color-accent);
+}
+
+/* Navbar Bookmark / Reading List Button */
+.nav-bookmark-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    color: var(--color-text);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.nav-bookmark-btn:hover {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+    background: var(--color-accent-soft);
+}
+
+.nav-bookmark-count {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: var(--color-accent);
+    color: #FFFFFF;
+    font-size: 0.65rem;
+    font-weight: 700;
+    min-width: 17px;
+    height: 17px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    line-height: 1;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
 /* Moderation Note */
+
 .moderation-notice {
     background-color: var(--color-primary-light);
     border: 1px solid rgba(107, 63, 105, 0.15);

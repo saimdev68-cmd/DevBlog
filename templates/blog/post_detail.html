@@ -96,9 +96,9 @@
         </div>
         {% endif %}
 
-        <!-- Article Actions Bar: Interactive Like Button & Sharing -->
+        <!-- Article Actions Bar: Interactive Like Button, Read Later & Sharing -->
         <div class="article-actions-bar">
-            <div>
+            <div class="flex items-center gap-3">
                 <button type="button"
                         class="like-btn {% if user_has_liked %}liked{% endif %}"
                         id="articleLikeBtn"
@@ -113,7 +113,23 @@
                     <span class="like-text">{% if user_has_liked %}Liked{% else %}Like{% endif %}</span>
                     <span class="like-count">{{ post.likes_count }}</span>
                 </button>
+
+                <button type="button"
+                        class="bookmark-btn {% if user_has_saved or post.id in saved_post_ids %}bookmarked{% endif %}"
+                        id="articleBookmarkBtn"
+                        data-bookmark-url="{% url 'blog:toggle_read_later' post.slug %}"
+                        data-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}"
+                        data-login-url="{% url 'accounts:login' %}"
+                        aria-label="Save for later"
+                        aria-pressed="{% if user_has_saved or post.id in saved_post_ids %}true{% else %}false{% endif %}"
+                        title="{% if user_has_saved or post.id in saved_post_ids %}Remove from Reading List{% else %}Save for later{% endif %}">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    <span class="bookmark-text">{% if user_has_saved or post.id in saved_post_ids %}Saved for Later{% else %}Read Later{% endif %}</span>
+                </button>
             </div>
+
 
             <div class="share-bar">
                 <span class="text-sm font-semibold text-muted" style="margin-right: 0.5rem;">Share:</span>

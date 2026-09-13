@@ -150,3 +150,57 @@ class BlogModelAndViewsTests(TestCase):
         self.assertEqual(admin_resp.status_code, 200)
         self.assertContains(admin_resp, 'Secret Draft Article')
 
+    def test_read_later_unauthenticated(self):
+        resp = self.client.post(reverse('blog:toggle_read_later', kwargs={'slug': self.post.slug}))
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn('/accounts/login/', resp.url)
+
+    def test_read_later_toggle_and_uniqueness(self):
+        from django.db import IntegrityError
+        from .models import ReadLater
+
+        self.client.login(email='author@example.com', password='Password123!')
+
+        # Initial state: not saved
+        self.assertFalse(ReadLater.objects.filter(user=self.user, post=self.post).exists())
+
+        # Toggle save
+        toggle_url = reverse('blog:toggle_read_later', kwargs={'slug': self.post.slug})
+        resp = self.client.post(toggle_url)
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertTrue(data['saved'])
+        self.assertEqual(data['reading_list_count'], 1)
+        self.assertTrue(ReadLater.objects.filter(user=self.user, post=self.post).exists())
+
+        # Detail view reflects saved state
+        detail_resp = self.client.get(reverse('blog:post_detail', kwargs={'slug': self.post.slug}))
+        self.assertEqual(detail_resp.status_code, 200)
+        self.assertTrue(detail_resp.context['user_has_saved'])
+        self.assertIn(self.post.id, detail_resp.context['saved_post_ids'])
+
+        # Reading list page renders saved article
+        list_resp = self.client.get(reverse('blog:reading_list'))
+        self.assertEqual(list_resp.status_code, 200)
+        self.assertContains(list_resp, self.post.title)
+        self.assertEqual(list_resp.context['total_saved'], 1)
+
+        # Profile page includes reading list for owner
+        profile_resp = self.client.get(reverse('accounts:profile', kwargs={'pk': self.user.pk}))
+        self.assertEqual(profile_resp.status_code, 200)
+        self.assertEqual(profile_resp.context['read_later_posts_count'], 1)
+
+        # Toggle again removes article
+        resp2 = self.client.post(toggle_url)
+        self.assertEqual(resp2.status_code, 200)
+        data2 = resp2.json()
+        self.assertFalse(data2['saved'])
+        self.assertEqual(data2['reading_list_count'], 0)
+        self.assertFalse(ReadLater.objects.filter(user=self.user, post=self.post).exists())
+
+        # Duplicate constraint enforcement
+        ReadLater.objects.create(user=self.user, post=self.post)
+        with self.assertRaises(IntegrityError):
+            ReadLater.objects.create(user=self.user, post=self.post)
+
+

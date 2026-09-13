@@ -371,7 +371,22 @@ class AuthorProfileView(DetailView):
 
         is_owner = self.request.user.is_authenticated and self.request.user.pk == author.pk
         context['is_owner'] = is_owner
+
+        if is_owner:
+            context['read_later_posts'] = (
+                Post.objects.filter(
+                    read_later_entries__user=author,
+                    status='PUBLISHED'
+                )
+                .select_related('category', 'author', 'author__profile')
+                .prefetch_related('tags')
+                .with_counts()
+                .order_by('-read_later_entries__created_at')
+            )
+            context['read_later_posts_count'] = context['read_later_posts'].count()
+
         return context
+
 
 
 @login_required

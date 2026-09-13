@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Reading List - DevBlog{% endblock %}
+{% block meta_description %}Articles and technical essays saved to read later on DevBlog.{% endblock %}
+
+{% block content %}
+<div class="container section">
+    <div style="max-width: 800px; margin: 0 auto 3rem; text-align: center;">
+        <span class="badge badge-primary" style="margin-bottom: 0.75rem;">Personal Library</span>
+        <h1 style="font-size: 2.75rem; margin-bottom: 0.75rem;">Your Reading List</h1>
+        <p class="text-muted" style="font-size: 1.1rem; margin-bottom: 1rem;">Articles and engineering masterclasses you've saved to explore at your convenience.</p>
+        <span class="text-sm font-semibold text-muted" id="readingListTotalCount">{{ total_saved }} article{{ total_saved|pluralize }} saved</span>
+    </div>
+
+    <div id="postsGridContainer" data-ajax-container="true">
+        {% if posts %}
+        <div class="grid grid-cols-3 gap-6" id="readingListGrid">
+            {% for post in posts %}
+                {% include 'partials/post_card.html' with post=post %}
+            {% endfor %}
+        </div>
+
+        {% include 'partials/pagination.html' %}
+        {% else %}
+            {% include 'partials/empty_state.html' with empty_title="Your Reading List is empty" empty_message="You haven't saved any articles for later yet. Click the bookmark icon on any publication to save it here." empty_action_url="/blog/" empty_action_text="Explore Articles" empty_icon_type="bookmark" %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

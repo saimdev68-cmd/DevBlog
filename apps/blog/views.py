@@ -1,11 +1,13 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q, F
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, ListView
-from .models import ArticleLike, Category, Post, Tag
+from .models import ArticleLike, Category, Post, ReadLater, Tag
 from apps.comments.forms import CommentForm
+
 
 
 class PostListView(ListView):
@@ -114,11 +116,14 @@ class PostDetailView(DetailView):
             .first()
         )
 
-        # User like status
+        # User like & saved status
         user_has_liked = False
+        user_has_saved = False
         if self.request.user.is_authenticated:
             user_has_liked = post.likes.filter(user=self.request.user).exists()
+            user_has_saved = post.read_later_entries.filter(user=self.request.user).exists()
         context['user_has_liked'] = user_has_liked
+        context['user_has_saved'] = user_has_saved
 
         return context
 
@@ -140,6 +145,51 @@ def toggle_like(request, slug):
     })
 
 
+@login_required
+@require_POST
+def toggle_read_later(request, slug):
+    post = get_object_or_404(Post, slug=slug, status='PUBLISHED')
+    entry, created = ReadLater.objects.get_or_create(user=request.user, post=post)
+    if not created:
+        entry.delete()
+        saved = False
+        message = "Removed from your Reading List."
+    else:
+        saved = True
+        message = "Saved to your Reading List."
+
+    return JsonResponse({
+        'saved': saved,
+        'message': message,
+        'reading_list_count': request.user.read_later_entries.count(),
+    })
+
+
+class ReadLaterListView(LoginRequiredMixin, ListView):
+    model = Post
+    template_name = 'blog/reading_list.html'
+    context_object_name = 'posts'
+    paginate_by = 12
+
+    def get_queryset(self):
+        return (
+            Post.objects.filter(
+                read_later_entries__user=self.request.user,
+                status='PUBLISHED'
+            )
+            .select_related('category', 'author', 'author__profile')
+            .prefetch_related('tags')
+            .with_counts()
+            .order_by('-read_later_entries__created_at')
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['total_saved'] = self.request.user.read_later_entries.filter(post__status='PUBLISHED').count()
+        return context
+
+
+
 class CategoryPostListView(ListView):
     model = Post
     template_name = 'blog/category.html'
@@ -154,6 +204,7 @@ class CategoryPostListView(ListView):
             .select_related('category', 'author', 'author__profile')
             .prefetch_related('tags')
             .with_counts()
+            .order_by('-published_at', '-created_at')
         )
 
     def get_context_data(self, **kwargs):
@@ -177,6 +228,7 @@ class TagPostListView(ListView):
             .select_related('category', 'author', 'author__profile')
             .prefetch_related('tags')
             .with_counts()
+            .order_by('-published_at', '-created_at')
         )
 
     def get_context_data(self, **kwargs):
@@ -210,7 +262,9 @@ class PostSearchView(ListView):
             .select_related('category', 'author', 'author__profile')
             .prefetch_related('tags')
             .with_counts()
+            .order_by('-published_at', '-created_at')
         )
+
 
 
     def get_context_data(self, **kwargs):

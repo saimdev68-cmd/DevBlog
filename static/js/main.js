@@ -242,7 +242,110 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // 4b. Read Later / Bookmark Toggle Handler
+    document.addEventListener('click', async (e) => {
+        const btn = e.target.closest('.bookmark-btn, .card-bookmark-btn');
+        if (!btn) return;
+        e.preventDefault();
+        e.stopPropagation();
+
+        const bookmarkUrl = btn.getAttribute('data-bookmark-url');
+        if (!bookmarkUrl) return;
+
+        const isAuth = btn.getAttribute('data-authenticated') === 'true';
+        if (!isAuth) {
+            const loginUrl = btn.getAttribute('data-login-url') || '/accounts/login/';
+            window.location.href = `${loginUrl}?next=${encodeURIComponent(window.location.pathname)}`;
+            return;
+        }
+
+        btn.disabled = true;
+        btn.classList.add('is-loading');
+        const csrfToken = getCookie('csrftoken') || document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+
+        try {
+            const response = await fetch(bookmarkUrl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.status === 401 || response.status === 403) {
+                window.location.href = '/accounts/login/';
+                return;
+            }
+
+            if (response.ok) {
+                const data = await response.json();
+
+                // Update all buttons for this same article on the page
+                const allMatchingBtns = document.querySelectorAll(`[data-bookmark-url="${bookmarkUrl}"]`);
+                allMatchingBtns.forEach(b => {
+                    const textEl = b.querySelector('.bookmark-text');
+                    if (data.saved) {
+                        b.classList.add('bookmarked');
+                        b.setAttribute('aria-pressed', 'true');
+                        if (textEl) textEl.textContent = 'Saved for Later';
+                        b.setAttribute('title', 'Remove from Reading List');
+                    } else {
+                        b.classList.remove('bookmarked');
+                        b.setAttribute('aria-pressed', 'false');
+                        if (textEl) textEl.textContent = 'Read Later';
+                        b.setAttribute('title', 'Save for later');
+                    }
+                });
+
+                // Update navbar reading list badge if present
+                const navBadge = document.getElementById('navReadingListCount');
+                if (navBadge) {
+                    if (data.reading_list_count > 0) {
+                        navBadge.textContent = data.reading_list_count;
+                        navBadge.style.display = 'inline-flex';
+                    } else {
+                        navBadge.style.display = 'none';
+                    }
+                }
+
+                // If on reading list page and removed, gracefully fade out card
+                const readingListGrid = document.getElementById('readingListGrid');
+                if (readingListGrid && !data.saved) {
+                    const postCard = btn.closest('.post-card');
+                    if (postCard) {
+                        postCard.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+                        postCard.style.opacity = '0';
+                        postCard.style.transform = 'scale(0.95)';
+                        setTimeout(() => {
+                            postCard.remove();
+                            const remaining = readingListGrid.querySelectorAll('.post-card').length;
+                            const totalCountEl = document.getElementById('readingListTotalCount');
+                            if (totalCountEl) {
+                                totalCountEl.textContent = `${remaining} article${remaining === 1 ? '' : 's'} saved`;
+                            }
+                            if (remaining === 0) {
+                                window.location.reload();
+                            }
+                        }, 250);
+                    }
+                }
+
+                showToast(data.message || (data.saved ? 'Saved to Reading List' : 'Removed from Reading List'), 'success');
+            } else {
+                showToast('Unable to update reading list. Please try again.', 'warning');
+            }
+        } catch (err) {
+            console.error('Error toggling reading list entry:', err);
+            showToast('Network error while updating reading list.', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.classList.remove('is-loading');
+        }
+    });
+
     // 5. Password Visibility Toggle (Show / Hide password)
+
     document.querySelectorAll('.password-toggle-btn').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.preventDefault();

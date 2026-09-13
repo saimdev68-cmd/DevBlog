@@ -42,6 +42,18 @@
                     <span>{{ post.likes_count }}</span>
                 </span>
                 <span>{{ post.reading_time }} min read</span>
+                <button type="button"
+                        class="card-bookmark-btn {% if post.id in saved_post_ids %}bookmarked{% endif %}"
+                        data-bookmark-url="{% url 'blog:toggle_read_later' post.slug %}"
+                        data-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}"
+                        data-login-url="{% url 'accounts:login' %}"
+                        title="{% if post.id in saved_post_ids %}Remove from Reading List{% else %}Save for later{% endif %}"
+                        aria-label="Save for later"
+                        aria-pressed="{% if post.id in saved_post_ids %}true{% else %}false{% endif %}">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                    </svg>
+                </button>
             </div>
         </div>
     </div>

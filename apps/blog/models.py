@@ -215,3 +215,29 @@ class ArticleLike(models.Model):
 
     def __str__(self):
         return f"{self.user} likes {self.post.title}"
+
+
+class ReadLater(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='read_later_entries',
+    )
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        related_name='read_later_entries',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "read later entry"
+        verbose_name_plural = "read later entries"
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'post'], name='unique_user_post_read_later')
+        ]
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user} saved {self.post.title} for later"
+
